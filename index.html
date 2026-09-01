@@ -254,35 +254,36 @@
   /* ---------- ingredient callout ---------- */
   .ingredients {
     text-align: center;
-    padding: 90px 40px;
+    padding: 100px 20px 140px;
     position: relative;
+    overflow: hidden;
   }
-  .ingredients .badge { margin-bottom: 10px; }
-  .ingredients h2 {
+  .ingredients .badge { margin-bottom: 20px; }
+  .ingredient-lines { position: relative; margin: 10px auto 0; }
+  .ingredient-lines .line {
     font-family: "Mouse Memoirs", sans-serif;
     font-weight: normal;
-    font-size: clamp(2.6rem, 7vw, 5.5rem);
+    font-size: clamp(2.6rem, 9.2vw, 8.5rem);
     color: var(--red);
-    -webkit-text-stroke: 0.035em #fff;
+    -webkit-text-stroke: 0.03em #fff;
     paint-order: stroke fill;
-    line-height: 1.02;
-    margin: 10px auto;
-    max-width: 900px;
+    line-height: 1.04;
+    margin: 0;
     text-transform: uppercase;
-    position: relative;
   }
   .ingredient-thumb {
     position: absolute;
-    width: 130px; height: 130px;
     border-radius: 50%;
     overflow: hidden;
     border: 6px solid var(--cream);
     box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+    z-index: 2;
   }
   .ingredient-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .thumb-lettuce { top: -10%; left: 8%; transform: rotate(-8deg); }
-  .thumb-tomato { top: 40%; right: 6%; transform: rotate(6deg); }
-  .thumb-patty { bottom: -14%; left: 42%; transform: rotate(4deg); }
+  .thumb-lettuce { width: clamp(120px, 17vw, 280px); height: clamp(120px, 17vw, 280px); top: -4%; left: 1%; transform: rotate(-8deg); }
+  .thumb-tomato { width: clamp(100px, 15vw, 240px); height: clamp(100px, 15vw, 240px); top: 19%; right: 2%; transform: rotate(7deg); }
+  .thumb-cheese { width: clamp(90px, 12vw, 200px); height: clamp(90px, 12vw, 200px); top: 45%; left: -1%; transform: rotate(-6deg); }
+  .thumb-patty { width: clamp(95px, 13vw, 210px); height: clamp(95px, 13vw, 210px); top: 70%; right: 3%; transform: rotate(5deg); }
 
   /* ---------- travel / yellow section ---------- */
   .travels {
@@ -304,18 +305,24 @@
     text-transform: uppercase;
   }
   .travels p { max-width: 420px; font-size: 1.05rem; }
-  .city-card { position: relative; width: 220px; }
+  .travel-path { position: relative; width: 100%; max-width: 1400px; margin: 50px auto 0; aspect-ratio: 1536 / 1500; }
+  .travel-path__line { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .city-card { position: absolute; width: clamp(150px, 16vw, 240px); }
   .city-card-inner { border-radius: 14px; overflow: hidden; box-shadow: 0 18px 30px rgba(0,0,0,0.2); }
   .city-card img { width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; }
   .city-tag {
     position: absolute; top: -14px; left: -10px;
     background: #fff; color: var(--red);
     font-size: 0.95rem; padding: 6px 14px; border-radius: 6px;
-    transform: rotate(-6deg);
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    z-index: 3;
   }
-  .city-grid { display: flex; gap: 60px; margin-top: 60px; flex-wrap: wrap; justify-content: center; }
-  .city-grid .city-card:nth-child(2) { margin-top: 60px; }
+  .city-card--berlin { top: 1%; right: 2%; transform: rotate(7deg); }
+  .city-card--london { top: 27%; left: 30%; transform: rotate(-7deg); }
+  .city-card--tokyo { top: 63%; left: 4%; transform: rotate(-11deg); }
+  .travel-plane { position: absolute; width: clamp(64px, 7.5vw, 120px); filter: drop-shadow(0 6px 10px rgba(0,0,0,0.15)); }
+  .travel-plane--1 { top: 45%; left: 48%; transform: rotate(22deg); }
+  .travel-plane--2 { top: 85%; left: 40%; transform: rotate(26deg); }
 
   /* ---------- final CTA ---------- */
   .final-cta {
@@ -370,6 +377,15 @@
     .hero-video-frame { width: 92vw; }
     .hero-text { flex-direction: column; gap: 16px; align-items: center; text-align: center; }
     #hero-video-section { height: 280vh; }
+    .travel-path { aspect-ratio: auto; height: auto; display: flex; flex-direction: column; align-items: center; gap: 50px; padding-bottom: 20px; }
+    .travel-path__line, .travel-plane { display: none; }
+    .city-card { position: static; width: 220px; transform: none !important; }
+    .ingredient-thumbs { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+    .ingredient-thumb {
+      position: static !important;
+      width: 84px !important; height: 84px !important;
+      transform: none !important;
+    }
   }
 </style>
 </head>
@@ -447,12 +463,18 @@
 
 <section class="ingredients">
   <span class="badge">PURE QUALITY</span>
-  <h2>
-    <span class="ingredient-thumb thumb-lettuce"><img src="assets/img/ingredient-lettuce.jpg" alt="Fresh lettuce"></span>
-    Every Layer Loaded With Signature Flavor
-    <span class="ingredient-thumb thumb-tomato"><img src="assets/img/ingredient-tomato.jpg" alt="Sliced tomato"></span>
-    <span class="ingredient-thumb thumb-patty"><img src="assets/img/ingredient-patty.jpg" alt="Grilled beef patty"></span>
-  </h2>
+  <div class="ingredient-lines">
+    <div class="ingredient-thumbs">
+      <span class="ingredient-thumb thumb-lettuce"><img src="assets/img/ingredient-lettuce.jpg" alt="Fresh lettuce"></span>
+      <span class="ingredient-thumb thumb-tomato"><img src="assets/img/ingredient-tomato.jpg" alt="Sliced tomato"></span>
+      <span class="ingredient-thumb thumb-cheese"><img src="assets/img/ingredient-cheese.jpg" alt="Sliced cheddar cheese"></span>
+      <span class="ingredient-thumb thumb-patty"><img src="assets/img/ingredient-patty.jpg" alt="Grilled beef patty"></span>
+    </div>
+    <div class="line">Every Layer</div>
+    <div class="line">Packed With</div>
+    <div class="line">Signature</div>
+    <div class="line">Flavor</div>
+  </div>
 </section>
 
 <section class="travels">
@@ -461,10 +483,15 @@
     <h2>Quality That Travels With You</h2>
     <p>Freshly smashed burgers, ready to go wherever you crave. From our flat-top to your table, every layer stays hot and loaded.</p>
   </div>
-  <div class="city-grid">
-    <div class="city-card"><span class="city-tag">LONDON"</span><div class="city-card-inner"><img src="assets/img/travel-1.jpg" alt="Customer with a STACK burger in London"></div></div>
-    <div class="city-card"><span class="city-tag">BERLIN"</span><div class="city-card-inner"><img src="assets/img/travel-2.jpg" alt="Customer with a STACK burger in Berlin"></div></div>
-    <div class="city-card"><span class="city-tag">TOKYO"</span><div class="city-card-inner"><img src="assets/img/travel-3.jpg" alt="Customer with a STACK burger in Tokyo"></div></div>
+  <div class="travel-path">
+    <svg class="travel-path__line" viewBox="0 0 1536 1500" preserveAspectRatio="none">
+      <path d="M1350,50 C950,250 1150,480 800,560 C480,630 650,850 300,980 C100,1060 250,1250 90,1400" fill="none" stroke="#F4A804" stroke-width="4" stroke-dasharray="16 16" stroke-linecap="round"/>
+    </svg>
+    <svg class="travel-plane travel-plane--1" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
+    <svg class="travel-plane travel-plane--2" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
+    <div class="city-card city-card--berlin"><span class="city-tag">BERLIN"</span><div class="city-card-inner"><img src="assets/img/travel-2.jpg" alt="Customer with a STACK burger in Berlin"></div></div>
+    <div class="city-card city-card--london"><span class="city-tag">LONDON"</span><div class="city-card-inner"><img src="assets/img/travel-1.jpg" alt="Customer with a STACK burger in London"></div></div>
+    <div class="city-card city-card--tokyo"><span class="city-tag">TOKYO"</span><div class="city-card-inner"><img src="assets/img/travel-3.jpg" alt="Customer with a STACK burger in Tokyo"></div></div>
   </div>
 </section>
 
