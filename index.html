@@ -105,24 +105,6 @@
     justify-content: center;
     overflow: hidden;
   }
-  .hero-bg-type {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
-    pointer-events: none;
-  }
-  .hero-bg-type span {
-    font-family: "Modak", cursive;
-    font-size: clamp(6rem, 16vw, 15rem);
-    color: var(--red);
-    -webkit-text-stroke: 0.06em #fff;
-    paint-order: stroke fill;
-    line-height: 0.95;
-    white-space: nowrap;
-  }
   .hero-video-frame {
     position: relative;
     z-index: 2;
@@ -368,8 +350,6 @@
 
 <section id="hero-video-section">
   <div class="hero-sticky">
-    <div class="hero-bg-type"><span>THE STACK</span></div>
-
     <div class="hero-video-frame">
       <video id="heroVideo" muted playsinline preload="auto"></video>
     </div>
