@@ -1,0 +1,11 @@
+.git
+.gitignore
+.impeccable
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+
+# raw source photos — only the cropped versions are referenced
+assets/img/raw-*.jpg

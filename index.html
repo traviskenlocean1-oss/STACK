@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STACK | Smashed Burgers, Loaded Different</title>
+<meta name="description" content="STACK smashes prime beef on the flat top and loads it different — bold, unexpected toppings on every burger. Order online or find us near you.">
+<link rel="canonical" href="https://stack.traviskenlocean1.workers.dev/">
+<meta property="og:title" content="STACK | Smashed Burgers, Loaded Different">
+<meta property="og:description" content="Prime beef, smashed hot, loaded with bold toppings you won't find anywhere else.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stack.traviskenlocean1.workers.dev/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Modak&family=Mouse+Memoirs&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "name": "STACK",
+  "servesCuisine": "Burgers",
+  "description": "Smashed prime beef burgers loaded with bold, unexpected toppings.",
+  "priceRange": "$$"
+}
+</script>
+<style>
+  :root {
+    --cream: #F8E3CC;
+    --red: #F91814;
+    --yellow: #F6C445;
+    --ink: #1B1B1B;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: "Mouse Memoirs", sans-serif;
+    overflow-x: hidden;
+  }
+  img { max-width: 100%; display: block; }
+
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+
+  /* ---------- sticker wordmark ---------- */
+  .wordmark {
+    font-family: "Modak", cursive;
+    color: var(--red);
+    -webkit-text-stroke: 0.08em #fff;
+    paint-order: stroke fill;
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+
+  /* ---------- torn-paper badge ---------- */
+  .badge {
+    display: inline-block;
+    background: #fff;
+    color: var(--red);
+    font-size: 1.1rem;
+    padding: 10px 22px;
+    clip-path: polygon(2% 12%, 10% 0%, 22% 8%, 34% 1%, 46% 9%, 58% 0%, 70% 7%, 82% 1%, 94% 10%, 100% 22%,
+                        96% 34%, 100% 46%, 93% 58%, 100% 70%, 95% 82%, 100% 94%, 88% 100%, 76% 92%, 64% 100%,
+                        52% 93%, 40% 100%, 28% 92%, 16% 100%, 4% 90%, 0% 78%, 6% 66%, 0% 54%, 5% 42%, 0% 30%, 4% 18%);
+    transform: rotate(-6deg);
+  }
+
+  /* ---------- nav ---------- */
+  header.site-nav {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 40px;
+    background: rgba(248,227,204,0.9);
+    backdrop-filter: blur(6px);
+  }
+  .site-nav .wordmark { font-size: 2.4rem; }
+  .site-nav .actions { display: flex; gap: 12px; align-items: center; }
+  .pill {
+    font-family: "Mouse Memoirs", sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    padding: 12px 26px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .pill--red { background: var(--red); color: #fff; }
+  .pill--outline { background: transparent; border: 2px solid var(--ink); color: var(--ink); }
+
+  /* ---------- hero / scroll-scrubbed video ---------- */
+  #hero-video-section {
+    position: relative;
+    height: 350vh;
+    background: var(--cream);
+  }
+  .hero-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .hero-bg-type {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .hero-bg-type span {
+    font-family: "Modak", cursive;
+    font-size: clamp(6rem, 16vw, 15rem);
+    color: var(--red);
+    -webkit-text-stroke: 0.06em #fff;
+    paint-order: stroke fill;
+    line-height: 0.95;
+    white-space: nowrap;
+  }
+  .hero-video-frame {
+    position: relative;
+    z-index: 2;
+    width: min(920px, 78vw);
+    aspect-ratio: 16 / 9;
+  }
+  .hero-video-frame video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .hero-badges { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+  .hero-badges .badge { position: absolute; pointer-events: auto; }
+  .hero-badges .b1 { top: 14%; left: 8%; }
+  .hero-badges .b2 { bottom: 18%; right: 8%; transform: rotate(7deg); }
+  .hero-text {
+    position: absolute;
+    z-index: 3;
+    bottom: 6%;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 6%;
+    pointer-events: none;
+  }
+  .hero-text p {
+    max-width: 260px;
+    font-size: 1.05rem;
+    line-height: 1.35;
+    margin: 0;
+  }
+  .hero-cta { text-align: center; margin-top: 24px; }
+
+  /* ---------- classic callout ---------- */
+  .classic {
+    text-align: center;
+    padding: 140px 40px 60px;
+  }
+  .classic h2 {
+    font-family: "Mouse Memoirs", sans-serif;
+    font-weight: normal;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    color: var(--red);
+    -webkit-text-stroke: 0.04em #fff;
+    paint-order: stroke fill;
+    line-height: 0.95;
+    margin: 20px 0;
+    text-transform: uppercase;
+  }
+  .classic p { max-width: 560px; margin: 0 auto 32px; font-size: 1.15rem; }
+  .classic-photo { max-width: 500px; margin: 40px auto 0; border-radius: 8px; overflow: hidden; }
+
+  /* ---------- polaroid row ---------- */
+  .polaroids {
+    display: flex; justify-content: center; gap: 40px;
+    padding: 60px 40px 100px;
+    flex-wrap: wrap;
+  }
+  .polaroid {
+    width: 260px; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+  }
+  .polaroid img { width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; }
+  .polaroid:nth-child(1) { transform: rotate(-5deg); }
+  .polaroid:nth-child(2) { transform: rotate(2deg) translateY(-16px); }
+  .polaroid:nth-child(3) { transform: rotate(6deg); }
+
+  /* ---------- wave dividers ---------- */
+  .wave { display: block; width: 100%; height: 90px; margin-top: -1px; }
+
+  /* ---------- ketchup / red section ---------- */
+  .ketchup {
+    background: var(--red);
+    color: var(--cream);
+    padding: 20px 40px 100px;
+    text-align: center;
+    position: relative;
+  }
+  .ketchup .badge { margin-bottom: 20px; }
+  .ketchup h2 {
+    font-family: "Mouse Memoirs", sans-serif;
+    font-weight: normal;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    color: var(--cream);
+    line-height: 1.02;
+    margin: 0 0 40px;
+    text-transform: uppercase;
+  }
+  .ketchup-stats {
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .ketchup-stats .stat-col { font-size: 1.05rem; font-weight: bold; line-height: 1.9; text-transform: uppercase; }
+  .ketchup-face { position: relative; max-width: 480px; margin: 0 auto; }
+  .ketchup-face img { border-radius: 16px; }
+  .eye {
+    position: absolute; width: 11%; aspect-ratio: 1;
+    background: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  }
+  .eye::after { content: ""; width: 40%; aspect-ratio: 1; background: #111; border-radius: 50%; }
+  .eye.left { top: 21%; left: 36%; }
+  .eye.right { top: 18%; left: 57%; }
+  .brow {
+    position: absolute; width: 9%; height: 5%;
+    border-top: 5px solid #fff; border-radius: 50% 50% 0 0;
+  }
+  .brow.left { top: 13%; left: 36%; }
+  .brow.right { top: 10%; left: 57%; }
+
+  /* ---------- ingredient callout ---------- */
+  .ingredients {
+    text-align: center;
+    padding: 90px 40px;
+    position: relative;
+  }
+  .ingredients .badge { margin-bottom: 10px; }
+  .ingredients h2 {
+    font-family: "Mouse Memoirs", sans-serif;
+    font-weight: normal;
+    font-size: clamp(2.6rem, 7vw, 5.5rem);
+    color: var(--red);
+    -webkit-text-stroke: 0.035em #fff;
+    paint-order: stroke fill;
+    line-height: 1.02;
+    margin: 10px auto;
+    max-width: 900px;
+    text-transform: uppercase;
+    position: relative;
+  }
+  .ingredient-thumb {
+    position: absolute;
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 6px solid var(--cream);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+  }
+  .ingredient-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .thumb-lettuce { top: -10%; left: 8%; transform: rotate(-8deg); }
+  .thumb-tomato { top: 40%; right: 6%; transform: rotate(6deg); }
+  .thumb-patty { bottom: -14%; left: 42%; transform: rotate(4deg); }
+
+  /* ---------- travel / yellow section ---------- */
+  .travels {
+    background: var(--yellow);
+    padding: 100px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .travels-head { max-width: 620px; }
+  .travels h2 {
+    font-family: "Mouse Memoirs", sans-serif;
+    font-weight: normal;
+    font-size: clamp(2.6rem, 7vw, 5rem);
+    color: #fff;
+    -webkit-text-stroke: 0.03em var(--red);
+    paint-order: stroke fill;
+    line-height: 1;
+    margin: 0 0 20px;
+    text-transform: uppercase;
+  }
+  .travels p { max-width: 420px; font-size: 1.05rem; }
+  .city-card { position: relative; width: 220px; }
+  .city-card-inner { border-radius: 14px; overflow: hidden; box-shadow: 0 18px 30px rgba(0,0,0,0.2); }
+  .city-card img { width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; }
+  .city-tag {
+    position: absolute; top: -14px; left: -10px;
+    background: #fff; color: var(--red);
+    font-size: 0.95rem; padding: 6px 14px; border-radius: 6px;
+    transform: rotate(-6deg);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  }
+  .city-grid { display: flex; gap: 60px; margin-top: 60px; flex-wrap: wrap; justify-content: center; }
+  .city-grid .city-card:nth-child(2) { margin-top: 60px; }
+
+  /* ---------- final CTA ---------- */
+  .final-cta {
+    padding: 100px 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+  .final-cta h2 {
+    font-family: "Mouse Memoirs", sans-serif;
+    font-weight: normal;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    color: var(--red);
+    -webkit-text-stroke: 0.04em #fff;
+    paint-order: stroke fill;
+    line-height: 0.95;
+    margin: 0 0 20px;
+    text-transform: uppercase;
+  }
+  .final-cta p { max-width: 420px; margin: 0 0 28px; font-size: 1.1rem; }
+  .final-cta-photo { border-radius: 16px; overflow: hidden; }
+  .final-cta-photo img { width: 100%; height: auto; aspect-ratio: 4/3; object-fit: cover; }
+
+  /* ---------- footer ---------- */
+  footer {
+    padding: 60px 40px 0;
+  }
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.15);
+    font-size: 0.95rem; flex-wrap: wrap; gap: 16px;
+  }
+  .footer-nav { display: flex; gap: 28px; text-transform: uppercase; }
+  .footer-nav a { color: var(--ink); text-decoration: none; }
+  .footer-tagline { padding: 20px 0; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.05em; }
+  .footer-wordmark {
+    position: relative;
+    font-size: clamp(5rem, 22vw, 15rem);
+    text-align: center;
+    padding-bottom: 20px;
+    -webkit-text-stroke: 0.05em #fff;
+  }
+  .footer-thumb { position: absolute; width: 90px; }
+  .footer-thumb.f1 { top: -20px; left: 10%; }
+  .footer-thumb.f2 { top: 10%; right: 12%; width: 70px; }
+
+  @media (max-width: 860px) {
+    .wrap, header.site-nav { padding-left: 20px; padding-right: 20px; }
+    .final-cta { grid-template-columns: 1fr; }
+    .ketchup-stats { flex-direction: column; gap: 24px; text-align: center; }
+    .hero-video-frame { width: 92vw; }
+    .hero-text { flex-direction: column; gap: 16px; align-items: center; text-align: center; }
+    #hero-video-section { height: 280vh; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="wordmark">STACK</div>
+  <div class="actions">
+    <a href="#menu" class="pill pill--red">BURGERS</a>
+    <button class="pill pill--outline">MENU ☰</button>
+  </div>
+</header>
+
+<section id="hero-video-section">
+  <div class="hero-sticky">
+    <div class="hero-bg-type"><span>THE STACK</span></div>
+
+    <div class="hero-video-frame">
+      <video id="heroVideo" muted playsinline preload="auto"></video>
+    </div>
+
+    <div class="hero-badges">
+      <div class="badge b1">LOADED FRESH</div>
+      <div class="badge b2">BOLD FLAVOR</div>
+    </div>
+
+    <div class="hero-text">
+      <p>Smashed hot on the flat top, our prime patties lock in ultimate juiciness under a caramelized crust.</p>
+      <p>Loaded different — bold, unexpected toppings on every single burger we build.</p>
+    </div>
+  </div>
+</section>
+
+<section class="classic">
+  <span class="badge">TOP LOADED</span>
+  <h2>Juicy Cheesy<br>Loaded Different</h2>
+  <p>STACK smashes prime beef hot on the flat top, then builds it up with toppings you won't find anywhere else. Fresh, fully loaded, and never basic.</p>
+  <a href="#menu" class="pill pill--red">ORDER NOW</a>
+  <div class="classic-photo"><img src="assets/img/classic-callout.jpg" alt="Loaded STACK smash burger held up close"></div>
+</section>
+
+<div class="polaroids">
+  <div class="polaroid"><img src="assets/img/customer-1.jpg" alt="Customer enjoying burgers and fries"></div>
+  <div class="polaroid"><img src="assets/img/customer-2.jpg" alt="Customer smiling with a smashed cheeseburger"></div>
+  <div class="polaroid"><img src="assets/img/customer-3.jpg" alt="Customer eating a burger outdoors"></div>
+</div>
+
+<svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0,0 C360,90 1080,90 1440,0 L1440,90 L0,90 Z" fill="#F91814"></path></svg>
+
+<section class="ketchup">
+  <span class="badge">EXPERIENCE</span>
+  <h2>Food That<br>Feels Good</h2>
+  <div class="ketchup-stats">
+    <div class="stat-col">450 KCAL<br>HIGH PROTEIN<br>FRESH INGREDIENTS</div>
+    <div class="ketchup-face">
+      <img src="assets/img/ketchup-burger.jpg" alt="STACK loaded smash burger held in gloved hands">
+      <div class="eye left"></div>
+      <div class="eye right"></div>
+      <div class="brow left"></div>
+      <div class="brow right"></div>
+    </div>
+    <div class="stat-col">100% REAL BEEF<br>ZERO SHORTCUTS<br>TRUE FLAVOR</div>
+  </div>
+</section>
+
+<svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0,90 C360,0 1080,0 1440,90 L1440,0 L0,0 Z" fill="#F91814"></path></svg>
+
+<div style="max-width:1100px;margin:0 auto;border-radius:16px;overflow:hidden;padding:0 40px;">
+  <img src="assets/img/hands-burger.jpg" alt="Hands holding a loaded STACK burger" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:16px;">
+</div>
+
+<section class="ingredients">
+  <span class="badge">PURE QUALITY</span>
+  <h2>
+    <span class="ingredient-thumb thumb-lettuce"><img src="assets/img/ingredient-lettuce.jpg" alt="Fresh lettuce"></span>
+    Every Layer Loaded With Signature Flavor
+    <span class="ingredient-thumb thumb-tomato"><img src="assets/img/ingredient-tomato.jpg" alt="Sliced tomato"></span>
+    <span class="ingredient-thumb thumb-patty"><img src="assets/img/ingredient-patty.jpg" alt="Grilled beef patty"></span>
+  </h2>
+</section>
+
+<section class="travels">
+  <div class="wrap travels-head">
+    <span class="badge">TAKE AWAY</span>
+    <h2>Quality That Travels With You</h2>
+    <p>Freshly smashed burgers, ready to go wherever you crave. From our flat-top to your table, every layer stays hot and loaded.</p>
+  </div>
+  <div class="city-grid">
+    <div class="city-card"><span class="city-tag">LONDON"</span><div class="city-card-inner"><img src="assets/img/travel-1.jpg" alt="Customer with a STACK burger in London"></div></div>
+    <div class="city-card"><span class="city-tag">BERLIN"</span><div class="city-card-inner"><img src="assets/img/travel-2.jpg" alt="Customer with a STACK burger in Berlin"></div></div>
+    <div class="city-card"><span class="city-tag">TOKYO"</span><div class="city-card-inner"><img src="assets/img/travel-3.jpg" alt="Customer with a STACK burger in Tokyo"></div></div>
+  </div>
+</section>
+
+<section class="final-cta wrap">
+  <div>
+    <h2>Feel The Change</h2>
+    <p>Smashed for the bold, built for the hungry. Dive into a legendary loaded experience where every crispy edge and juicy layer rules.</p>
+    <a href="#menu" class="pill pill--red">ORDER NOW</a>
+  </div>
+  <div class="final-cta-photo"><img src="assets/img/cta-eating.jpg" alt="Digging into a loaded STACK burger and fries"></div>
+</section>
+
+<footer>
+  <div class="wrap footer-top">
+    <div class="footer-nav">
+      <a href="#">Home</a>
+      <a href="#menu">Burgers</a>
+      <a href="#">Spices</a>
+      <a href="#">Contact</a>
+    </div>
+    <div>© 2026 STACK — ALL RIGHTS RESERVED</div>
+  </div>
+  <div class="wrap footer-tagline">Smashed Patties · Loaded Different · Est. 2026</div>
+  <div class="footer-wordmark">
+    <img class="footer-thumb f1" src="assets/img/ingredient-lettuce.jpg" alt="" style="border-radius:50%;">
+    <img class="footer-thumb f2" src="assets/img/ingredient-tomato.jpg" alt="" style="border-radius:50%;">
+    <span class="wordmark">STACK</span>
+  </div>
+</footer>
+
+<script>
+  // cycling tab title, matching CRAV's cooking-verb easter egg
+  const titles = ["Smashing", "Stacking", "Melting", "Loading", "Serving"];
+  let ti = 0;
+  setInterval(() => { ti = (ti + 1) % titles.length; document.title = "STACK | " + titles[ti]; }, 2200);
+
+  // ---- scroll-scrubbed hero video ----
+  (function () {
+    const section = document.getElementById('hero-video-section');
+    const video = document.getElementById('heroVideo');
+    let ready = false;
+    let targetTime = 0;
+    let shownTime = 0;
+
+    async function loadVideo(src) {
+      const res = await fetch(src);
+      const blob = await res.blob();
+      video.src = URL.createObjectURL(blob);
+      await new Promise((resolve) => {
+        video.addEventListener('loadedmetadata', resolve, { once: true });
+      });
+      video.pause();
+      video.currentTime = 0;
+      ready = true;
+      requestAnimationFrame(tick);
+    }
+
+    function getProgress() {
+      const rect = section.getBoundingClientRect();
+      const scrollable = section.offsetHeight - window.innerHeight;
+      if (scrollable <= 0) return 0;
+      const scrolled = -rect.top;
+      return Math.min(1, Math.max(0, scrolled / scrollable));
+    }
+
+    function onScroll() {
+      if (!ready || !video.duration) return;
+      targetTime = getProgress() * video.duration;
+    }
+
+    function tick() {
+      if (ready && video.duration && !video.seeking) {
+        shownTime += (targetTime - shownTime) * 0.15;
+        const next = Math.min(video.duration, Math.max(0, shownTime));
+        if (Math.abs(next - video.currentTime) > 0.008) {
+          video.currentTime = next;
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    loadVideo('assets/video/smash-burger-scroll-animation.mp4');
+  })();
+</script>
+
+</body>
+</html>
