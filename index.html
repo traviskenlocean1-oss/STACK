@@ -63,7 +63,14 @@
     clip-path: polygon(2% 12%, 10% 0%, 22% 8%, 34% 1%, 46% 9%, 58% 0%, 70% 7%, 82% 1%, 94% 10%, 100% 22%,
                         96% 34%, 100% 46%, 93% 58%, 100% 70%, 95% 82%, 100% 94%, 88% 100%, 76% 92%, 64% 100%,
                         52% 93%, 40% 100%, 28% 92%, 16% 100%, 4% 90%, 0% 78%, 6% 66%, 0% 54%, 5% 42%, 0% 30%, 4% 18%);
-    transform: rotate(-6deg);
+    --rot: -6deg;
+    transform: rotate(var(--rot)) scale(0.4);
+    opacity: 0;
+    transition: transform 0.55s cubic-bezier(.34,1.56,.64,1), opacity 0.4s ease;
+  }
+  .badge.badge-visible, .badge--static {
+    transform: rotate(var(--rot)) scale(1);
+    opacity: 1;
   }
 
   /* ---------- nav ---------- */
@@ -78,7 +85,7 @@
   .site-nav .actions { display: flex; gap: 12px; align-items: center; }
   .pill {
     font-family: "Mouse Memoirs", sans-serif;
-    font-size: 0.95rem;
+    font-size: 1rem;
     letter-spacing: 0.04em;
     padding: 12px 26px;
     border-radius: 999px;
@@ -86,6 +93,12 @@
     cursor: pointer;
     text-decoration: none;
     display: inline-block;
+    transition: transform 0.2s ease;
+  }
+  .pill:hover { transform: scale(1.06); }
+  .classic a.pill--red, .final-cta a.pill--red {
+    font-size: 1.3rem;
+    padding: 18px 44px;
   }
   .pill--red { background: var(--red); color: #fff; }
   .pill--outline { background: transparent; border: 2px solid var(--ink); color: var(--ink); }
@@ -118,7 +131,7 @@
   .hero-badges { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
   .hero-badges .badge { position: absolute; pointer-events: auto; }
   .hero-badges .b1 { top: 14%; left: 8%; }
-  .hero-badges .b2 { bottom: 18%; right: 8%; transform: rotate(7deg); }
+  .hero-badges .b2 { bottom: 18%; right: 8%; --rot: 7deg; }
   .hero-text {
     position: absolute;
     z-index: 3;
@@ -171,14 +184,21 @@
   .polaroid {
     width: 340px; border-radius: 10px; overflow: hidden;
     box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+    --base-rot: 0deg; --base-y: 0px; --tilt-x: 0px; --tilt-y: 0px;
+    transform: rotate(var(--base-rot)) translate(var(--tilt-x), calc(var(--base-y) + var(--tilt-y)));
+    transition: transform 0.25s ease;
+    cursor: pointer;
   }
   .polaroid img { width: 100%; height: auto; aspect-ratio: 4/5; object-fit: cover; }
-  .polaroid:nth-child(1) { transform: rotate(-5deg); }
-  .polaroid:nth-child(2) { transform: rotate(2deg) translateY(-16px); }
-  .polaroid:nth-child(3) { transform: rotate(6deg); }
+  .polaroid:nth-child(1) { --base-rot: -5deg; }
+  .polaroid:nth-child(2) { --base-rot: 2deg; --base-y: -16px; }
+  .polaroid:nth-child(3) { --base-rot: 6deg; }
 
   /* ---------- wave dividers ---------- */
   .wave { display: block; width: 100%; height: 90px; margin-top: -1px; }
+
+  .hands-photo-full { width: 100%; height: 90vh; overflow: hidden; }
+  .hands-photo-full img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   /* ---------- ketchup / red section ---------- */
   .ketchup {
@@ -187,7 +207,12 @@
     padding: 20px 40px 100px;
     text-align: center;
     position: relative;
+    clip-path: inset(0 0 100% 0);
+    will-change: clip-path;
   }
+  .split-words .word { display: inline-block; overflow: hidden; vertical-align: top; }
+  .split-words .word > span { display: inline-block; transform: translateY(115%); transition: transform 0.6s cubic-bezier(.2,.8,.2,1); }
+  .split-words.words-in .word > span { transform: translateY(0); }
   .ketchup .badge { margin-bottom: 20px; }
   .ketchup h2 {
     font-family: "Mouse Memoirs", sans-serif;
@@ -203,23 +228,24 @@
     max-width: 1100px; margin: 0 auto;
   }
   .ketchup-stats .stat-col { font-size: 1.05rem; font-weight: bold; line-height: 1.9; text-transform: uppercase; }
-  .ketchup-face { position: relative; max-width: 480px; margin: 0 auto; }
-  .ketchup-face img { border-radius: 16px; }
+  .ketchup-face { position: relative; width: min(1100px, 92vw); margin: 0 auto; }
+  .ketchup-face img { display: block; width: 100%; height: auto; }
   .eye {
-    position: absolute; width: 11%; aspect-ratio: 1;
+    position: absolute; width: 10%; aspect-ratio: 1;
     background: #fff; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    overflow: hidden;
   }
-  .eye::after { content: ""; width: 40%; aspect-ratio: 1; background: #111; border-radius: 50%; }
-  .eye.left { top: 21%; left: 36%; }
-  .eye.right { top: 18%; left: 57%; }
+  .pupil { width: 42%; aspect-ratio: 1; background: #111; border-radius: 50%; }
+  .eye.left { top: 14%; left: 33%; }
+  .eye.right { top: 10%; left: 56%; }
   .brow {
-    position: absolute; width: 9%; height: 5%;
+    position: absolute; width: 8%; height: 4%;
     border-top: 5px solid #fff; border-radius: 50% 50% 0 0;
   }
-  .brow.left { top: 13%; left: 36%; }
-  .brow.right { top: 10%; left: 57%; }
+  .brow.left { top: 7%; left: 33%; }
+  .brow.right { top: 3%; left: 56%; }
 
   /* ---------- ingredient callout ---------- */
   .ingredients {
@@ -360,8 +386,8 @@
     </div>
 
     <div class="hero-badges">
-      <div class="badge b1">LOADED FRESH</div>
-      <div class="badge b2">BOLD FLAVOR</div>
+      <div class="badge badge--static b1">LOADED FRESH</div>
+      <div class="badge badge--static b2">BOLD FLAVOR</div>
     </div>
 
     <div class="hero-text">
@@ -388,15 +414,20 @@
 
 <svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0,0 C360,90 1080,90 1440,0 L1440,90 L0,90 Z" fill="#F91814"></path></svg>
 
-<section class="ketchup">
+<section class="ketchup" id="ketchupSection">
   <span class="badge">EXPERIENCE</span>
-  <h2>Food That<br>Feels Good</h2>
+  <h2 class="split-words">
+    <span class="word"><span style="transition-delay:0s">Food</span></span>
+    <span class="word"><span style="transition-delay:0.08s">That</span></span><br>
+    <span class="word"><span style="transition-delay:0.16s">Feels</span></span>
+    <span class="word"><span style="transition-delay:0.24s">Good</span></span>
+  </h2>
   <div class="ketchup-stats">
     <div class="stat-col">450 KCAL<br>HIGH PROTEIN<br>FRESH INGREDIENTS</div>
     <div class="ketchup-face">
-      <img src="assets/img/ketchup-burger.jpg" alt="STACK loaded smash burger held in gloved hands">
-      <div class="eye left"></div>
-      <div class="eye right"></div>
+      <img src="assets/img/ketchup-burger.png" alt="STACK loaded smash burger with a face">
+      <div class="eye left"><div class="pupil"></div></div>
+      <div class="eye right"><div class="pupil"></div></div>
       <div class="brow left"></div>
       <div class="brow right"></div>
     </div>
@@ -406,8 +437,8 @@
 
 <svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0,90 C360,0 1080,0 1440,90 L1440,0 L0,0 Z" fill="#F91814"></path></svg>
 
-<div style="max-width:1100px;margin:0 auto;border-radius:16px;overflow:hidden;padding:0 40px;">
-  <img src="assets/img/hands-burger.jpg" alt="Hands holding a loaded STACK burger" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:16px;">
+<div class="hands-photo-full">
+  <img src="assets/img/hands-burger.jpg" alt="Hands holding a loaded STACK burger">
 </div>
 
 <section class="ingredients">
@@ -513,6 +544,91 @@
 
     window.addEventListener('scroll', onScroll, { passive: true });
     loadVideo('assets/video/smash-burger-scroll-animation.mp4');
+  })();
+
+  // ---- badges fade/scale in on scroll ----
+  (function () {
+    const badges = document.querySelectorAll('.badge:not(.badge--static)');
+    if (!badges.length) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('badge-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    badges.forEach((b) => io.observe(b));
+  })();
+
+  // ---- ketchup section: clip-path wall reveal driven by scroll ----
+  (function () {
+    const section = document.getElementById('ketchupSection');
+    if (!section) return;
+    function update() {
+      const rect = section.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const start = vh;
+      const end = vh * 0.25;
+      let progress = (start - rect.top) / (start - end);
+      progress = Math.min(1, Math.max(0, progress));
+      section.style.clipPath = `inset(0 0 ${(1 - progress) * 100}% 0)`;
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  })();
+
+  // ---- "Food That Feels Good" word-by-word reveal, triggers once in view ----
+  (function () {
+    const h2 = document.querySelector('#ketchupSection h2.split-words');
+    if (!h2) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          h2.classList.add('words-in');
+          io.disconnect();
+        }
+      });
+    }, { threshold: 0.35 });
+    io.observe(h2);
+  })();
+
+  // ---- googly eyes track the cursor ----
+  (function () {
+    const eyes = document.querySelectorAll('.eye');
+    if (!eyes.length) return;
+    window.addEventListener('mousemove', (e) => {
+      eyes.forEach((eye) => {
+        const pupil = eye.querySelector('.pupil');
+        if (!pupil) return;
+        const rect = eye.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const angle = Math.atan2(dy, dx);
+        const maxDist = rect.width * 0.2;
+        const dist = Math.min(maxDist, Math.hypot(dx, dy) * 0.15);
+        pupil.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
+      });
+    }, { passive: true });
+  })();
+
+  // ---- polaroid photos shift toward the cursor on hover ----
+  (function () {
+    document.querySelectorAll('.polaroid').forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const relX = (e.clientX - rect.left) / rect.width - 0.5;
+        const relY = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.setProperty('--tilt-x', (relX * 24) + 'px');
+        card.style.setProperty('--tilt-y', (relY * 18) + 'px');
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--tilt-x', '0px');
+        card.style.setProperty('--tilt-y', '0px');
+      });
+    });
   })();
 </script>
 
