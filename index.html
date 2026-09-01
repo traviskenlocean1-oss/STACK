@@ -195,7 +195,11 @@
   .polaroid:nth-child(3) { --base-rot: 6deg; }
 
   /* ---------- wave dividers ---------- */
-  .wave { display: block; width: 100%; height: 90px; margin-top: -1px; }
+  .wave { display: block; width: 100%; height: auto; aspect-ratio: 1536 / 300; margin: -1px 0; position: relative; z-index: 5; }
+  /* waveBottom's fill sits in the LOWER half of its viewBox (cream, matching the page bg below it) —
+     its transparent upper half needs to overlap the red ketchup section above so red shows through
+     up to the curve line, otherwise the whole box reads as flat cream-on-cream. */
+  #waveBottom { margin-top: -12%; }
 
   .hands-photo-full { width: 100%; height: 90vh; overflow: hidden; }
   .hands-photo-full img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -412,7 +416,7 @@
   <div class="polaroid"><img src="assets/img/customer-3.jpg" alt="Customer eating a burger outdoors"></div>
 </div>
 
-<svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0,0 C360,90 1080,90 1440,0 L1440,90 L0,90 Z" fill="#F91814"></path></svg>
+<svg class="wave jelly" id="waveTop" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,0 H-1 V155 S184.32,45 460.8,175 S860.16,89.327311 1121.28,155.023593 S1413.12,121.445613 1536,88.554387 V0" fill="#F91814"></path></svg>
 
 <section class="ketchup" id="ketchupSection">
   <span class="badge">EXPERIENCE</span>
@@ -435,7 +439,7 @@
   </div>
 </section>
 
-<svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0,90 C360,0 1080,0 1440,90 L1440,0 L0,0 Z" fill="#F91814"></path></svg>
+<svg class="wave jelly" id="waveBottom" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,300 H-1 V155 S184.32,85 460.8,145 S860.16,120.672689 1121.28,155.023593 S1413.12,121.445613 1536,124.298350 V300" fill="#F8E3CD"></path></svg>
 
 <div class="hands-photo-full">
   <img src="assets/img/hands-burger.jpg" alt="Hands holding a loaded STACK burger">
@@ -612,6 +616,38 @@
         pupil.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
       });
     }, { passive: true });
+  })();
+
+  // ---- wave dividers: continuous "jelly" wobble, independent of scroll ----
+  (function () {
+    const waves = [
+      { id: 'waveTop', baseY: 155, startY: 0, close: 'V0', points: [
+          { ctrlX: 184.32, ctrlY: 45, endX: 460.8, endY: 175 },
+          { ctrlX: 860.16, ctrlY: 89.327311, endX: 1121.28, endY: 155.023593 },
+          { ctrlX: 1413.12, ctrlY: 121.445613, endX: 1536, endY: 88.554387 }
+        ] },
+      { id: 'waveBottom', baseY: 155, startY: 300, close: 'V300', points: [
+          { ctrlX: 184.32, ctrlY: 85, endX: 460.8, endY: 145 },
+          { ctrlX: 860.16, ctrlY: 120.672689, endX: 1121.28, endY: 155.023593 },
+          { ctrlX: 1413.12, ctrlY: 121.445613, endX: 1536, endY: 124.29835 }
+        ] }
+    ];
+    waves.forEach((w, wi) => {
+      const svg = document.getElementById(w.id);
+      if (!svg) return;
+      const path = svg.querySelector('path');
+      const t0 = performance.now() + wi * 900;
+      function animate(now) {
+        const t = (now - t0) / 1000;
+        const segs = w.points.map((p, i) => {
+          const offset = Math.sin(t * (0.35 + i * 0.12) + i * 1.7 + wi * 2.1) * 18;
+          return `S${p.ctrlX},${(p.ctrlY + offset * 0.6).toFixed(2)} ${p.endX},${(p.endY + offset).toFixed(2)}`;
+        }).join(' ');
+        path.setAttribute('d', `M1536,${w.startY} H-1 V${w.baseY} ${segs} ${w.close}`);
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    });
   })();
 
   // ---- polaroid photos shift toward the cursor on hover ----
