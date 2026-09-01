@@ -58,8 +58,8 @@
     display: inline-block;
     background: #fff;
     color: var(--red);
-    font-size: 1.1rem;
-    padding: 10px 22px;
+    font-size: 1.9rem;
+    padding: 14px 30px;
     clip-path: polygon(2% 12%, 10% 0%, 22% 8%, 34% 1%, 46% 9%, 58% 0%, 70% 7%, 82% 1%, 94% 10%, 100% 22%,
                         96% 34%, 100% 46%, 93% 58%, 100% 70%, 95% 82%, 100% 94%, 88% 100%, 76% 92%, 64% 100%,
                         52% 93%, 40% 100%, 28% 92%, 16% 100%, 4% 90%, 0% 78%, 6% 66%, 0% 54%, 5% 42%, 0% 30%, 4% 18%);
@@ -140,12 +140,18 @@
   /* ---------- classic callout ---------- */
   .classic {
     text-align: center;
-    padding: 140px 40px 60px;
+    padding: 60px 40px 60px;
+  }
+  .classic-wordmark {
+    font-size: clamp(5rem, 16vw, 11rem);
+    color: var(--yellow);
+    -webkit-text-stroke: 0.05em #fff;
+    margin-bottom: 20px;
   }
   .classic h2 {
     font-family: "Mouse Memoirs", sans-serif;
     font-weight: normal;
-    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-size: clamp(4rem, 11.5vw, 9.5rem);
     color: var(--red);
     -webkit-text-stroke: 0.04em #fff;
     paint-order: stroke fill;
@@ -163,10 +169,10 @@
     flex-wrap: wrap;
   }
   .polaroid {
-    width: 260px; border-radius: 10px; overflow: hidden;
+    width: 340px; border-radius: 10px; overflow: hidden;
     box-shadow: 0 20px 40px rgba(0,0,0,0.18);
   }
-  .polaroid img { width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; }
+  .polaroid img { width: 100%; height: auto; aspect-ratio: 4/5; object-fit: cover; }
   .polaroid:nth-child(1) { transform: rotate(-5deg); }
   .polaroid:nth-child(2) { transform: rotate(2deg) translateY(-16px); }
   .polaroid:nth-child(3) { transform: rotate(6deg); }
@@ -366,6 +372,7 @@
 </section>
 
 <section class="classic">
+  <div class="wordmark classic-wordmark">STACK</div>
   <span class="badge">TOP LOADED</span>
   <h2>Juicy Cheesy<br>Loaded Different</h2>
   <p>STACK smashes prime beef hot on the flat top, then builds it up with toppings you won't find anywhere else. Fresh, fully loaded, and never basic.</p>
