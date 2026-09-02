@@ -94,15 +94,14 @@
     height: clamp(150px, 18vw, 260px);
   }
   .loader-piece {
-    position: absolute; left: 50%; width: 94%; height: auto;
+    position: absolute; left: 50%; width: 78%; height: auto;
     opacity: 0; transform: translate(-50%, -60px) scale(0.5);
     transition: transform 0.6s cubic-bezier(.34,1.56,.64,1), opacity 0.35s ease;
-    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.28));
+    filter: drop-shadow(0 10px 14px rgba(0,0,0,0.25));
   }
   .loader-stack.piece-in .loader-piece { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  .lp-bottom { bottom: 0; z-index: 1; transition-delay: 0.05s; }
-  .lp-patty { bottom: 24%; z-index: 2; transition-delay: 0.24s; }
-  .lp-top { bottom: 42%; z-index: 3; transition-delay: 0.44s; }
+  .lp-patty { bottom: 0; z-index: 1; transition-delay: 0.05s; }
+  .lp-top { bottom: 46%; z-index: 2; transition-delay: 0.3s; }
   .loader-crumb {
     position: absolute; top: 46%; left: 50%; width: 8px; height: 8px; border-radius: 50%;
     opacity: 0; pointer-events: none;
@@ -721,9 +720,20 @@
 <div id="pageLoader" role="dialog" aria-modal="true" aria-label="Page loading">
   <svg class="loader-wave jelly" id="loaderWave" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,300 H-1 V145 S184.32,255 460.8,125 S860.16,210.672689 1121.28,144.976407 S1413.12,178.554387 1536,211.44561300000002 V300" fill="#F6C445"></path></svg>
   <div class="loader-stack" id="loaderStack">
-    <img class="loader-piece lp-bottom" src="assets/img/loader-bottom.png" alt="">
-    <img class="loader-piece lp-patty" src="assets/img/loader-patty.png" alt="">
-    <img class="loader-piece lp-top" src="assets/img/loader-top.png" alt="">
+    <svg class="loader-piece lp-patty" viewBox="0 0 300 150" aria-hidden="true">
+      <rect x="15" y="65" width="270" height="70" rx="35" fill="#4A2413"></rect>
+      <rect x="15" y="55" width="270" height="60" rx="30" fill="#6B3A24"></rect>
+      <path d="M8,28 Q40,54 72,30 Q104,58 144,29 Q184,58 224,30 Q256,54 292,28 L292,58 L8,58 Z" fill="#F6C445"></path>
+      <path d="M8,28 Q40,54 72,30 Q104,58 144,29 Q184,58 224,30 Q256,54 292,28" fill="none" stroke="#E3A80F" stroke-width="3" stroke-linecap="round"></path>
+    </svg>
+    <svg class="loader-piece lp-top" viewBox="0 0 300 170" aria-hidden="true">
+      <path d="M22,150 Q22,42 150,42 Q278,42 278,150 Z" fill="#D89B4A"></path>
+      <path d="M18,140 Q18,36 150,36 Q282,36 282,140 Z" fill="#F0C877"></path>
+      <ellipse cx="105" cy="72" rx="46" ry="17" fill="#FCE3AC" opacity="0.7" transform="rotate(-13 105 72)"></ellipse>
+      <ellipse cx="118" cy="62" rx="5" ry="8" fill="#fff" opacity="0.85" transform="rotate(-10 118 62)"></ellipse>
+      <ellipse cx="165" cy="58" rx="5" ry="8" fill="#fff" opacity="0.85" transform="rotate(8 165 58)"></ellipse>
+      <ellipse cx="190" cy="72" rx="5" ry="8" fill="#fff" opacity="0.85" transform="rotate(-5 190 72)"></ellipse>
+    </svg>
     <div class="loader-crumb" style="--cx:-46px; --cy:-58px; background:#F6C445;"></div>
     <div class="loader-crumb" style="--cx:38px; --cy:-64px; background:#fff;"></div>
     <div class="loader-crumb" style="--cx:-64px; --cy:-18px; background:#60A905;"></div>
