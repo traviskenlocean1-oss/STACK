@@ -195,7 +195,7 @@
   }
   .hero-video-frame {
     position: absolute;
-    inset: 6%;
+    inset: 2%;
     z-index: 2;
   }
   .hero-video-frame video {
@@ -283,10 +283,14 @@
   .wave { display: block; width: 100%; height: auto; aspect-ratio: 1536 / 300; }
   .wave--in { position: absolute; top: 0; left: 0; z-index: auto; margin: 0; transform: scaleY(0.65); transform-origin: top; transition: transform 0.9s cubic-bezier(.22,.9,.3,1); }
   .wave--in.wave-settled { transform: scaleY(1); }
-  .wave-out-wrap { width: 100%; margin-top: -9%; position: relative; z-index: 5; overflow: hidden; transform: scaleY(0.65); transform-origin: top; transition: transform 0.9s cubic-bezier(.22,.9,.3,1); }
+  /* the wave svg's fill only occupies the upper half of its own aspect-ratio box (the
+     lower half is transparent by design, meant to overlap into whatever follows) — capping
+     the wrap's own height crops away that unused transparent tail instead of letting it
+     show through as a gap of plain page background between this and the next element. */
+  .wave-out-wrap { width: 100%; height: 13vw; margin-top: -9%; position: relative; z-index: 5; overflow: hidden; transform: scaleY(0.65); transform-origin: top; transition: transform 0.9s cubic-bezier(.22,.9,.3,1); }
   .wave-out-wrap.wave-settled { transform: scaleY(1); }
 
-  .hands-photo-full { width: 100%; height: 90vh; overflow: hidden; position: relative; }
+  .hands-photo-full { width: 100%; height: 105vh; overflow: hidden; position: relative; }
   .hands-photo-full img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .hands-photo-full .wave--in { top: auto; bottom: 0; transform: scaleY(0.65); transform-origin: bottom; }
   .hands-photo-full .wave--in.wave-settled { transform: scaleY(1); }
@@ -452,7 +456,7 @@
   .footer-wordmark {
     position: relative;
     text-align: center;
-    padding-top: 60px;
+    padding-top: 220px;
     padding-bottom: 20px;
   }
   .footer-wordmark .wordmark {
@@ -468,15 +472,15 @@
     transform: scaleX(var(--fit-x, 1)) scale(0.3);
     opacity: 0;
     transform-origin: center;
-    transition: transform 0.6s cubic-bezier(.34,1.56,.64,1), opacity 0.5s ease;
+    transition: transform 1.6s cubic-bezier(.34,1.56,.64,1), opacity 1.1s ease;
   }
   .footer-wordmark .wordmark.pop-in {
     transform: scaleX(var(--fit-x, 1)) scale(1);
     opacity: 1;
   }
   .footer-thumb { position: absolute; width: 90px; }
-  .footer-thumb.f1 { top: 40px; left: 10%; }
-  .footer-thumb.f2 { top: calc(10% + 60px); right: 12%; width: 70px; }
+  .footer-thumb.f1 { top: 200px; left: 10%; }
+  .footer-thumb.f2 { top: calc(10% + 220px); right: 12%; width: 70px; }
 
   @media (max-width: 860px) {
     .wrap, header.site-nav { padding-left: 20px; padding-right: 20px; }
