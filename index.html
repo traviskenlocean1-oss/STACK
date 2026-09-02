@@ -263,11 +263,11 @@
   .ingredient-lines .line {
     font-family: "Mouse Memoirs", sans-serif;
     font-weight: normal;
-    font-size: clamp(2.6rem, 9.2vw, 8.5rem);
+    font-size: clamp(2.6rem, 15vw, 18rem);
     color: var(--red);
     -webkit-text-stroke: 0.03em #fff;
     paint-order: stroke fill;
-    line-height: 1.04;
+    line-height: 0.85;
     margin: 0;
     text-transform: uppercase;
   }
@@ -280,10 +280,10 @@
     z-index: 2;
   }
   .ingredient-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .thumb-lettuce { width: clamp(120px, 17vw, 280px); height: clamp(120px, 17vw, 280px); top: -4%; left: 1%; transform: rotate(-8deg); }
-  .thumb-tomato { width: clamp(100px, 15vw, 240px); height: clamp(100px, 15vw, 240px); top: 19%; right: 2%; transform: rotate(7deg); }
-  .thumb-cheese { width: clamp(90px, 12vw, 200px); height: clamp(90px, 12vw, 200px); top: 45%; left: -1%; transform: rotate(-6deg); }
-  .thumb-patty { width: clamp(95px, 13vw, 210px); height: clamp(95px, 13vw, 210px); top: 70%; right: 3%; transform: rotate(5deg); }
+  .thumb-lettuce { width: clamp(140px, 24vw, 440px); height: clamp(140px, 24vw, 440px); top: -4%; left: 0%; transform: rotate(-8deg); }
+  .thumb-tomato { width: clamp(120px, 18vw, 340px); height: clamp(120px, 18vw, 340px); top: 19%; right: 0%; transform: rotate(7deg); }
+  .thumb-cheese { width: clamp(110px, 16vw, 300px); height: clamp(110px, 16vw, 300px); top: 45%; left: -2%; transform: rotate(-6deg); }
+  .thumb-patty { width: clamp(100px, 15vw, 280px); height: clamp(100px, 15vw, 280px); top: 70%; right: 1%; transform: rotate(5deg); }
 
   /* ---------- travel / yellow section ---------- */
   .travels {
@@ -292,15 +292,15 @@
     position: relative;
     overflow: hidden;
   }
-  .travels-head { max-width: 620px; }
+  .travels-head { max-width: 1500px; }
   .travels h2 {
     font-family: "Mouse Memoirs", sans-serif;
     font-weight: normal;
-    font-size: clamp(2.6rem, 7vw, 5rem);
+    font-size: clamp(2.6rem, 15vw, 18rem);
     color: #fff;
     -webkit-text-stroke: 0.03em var(--red);
     paint-order: stroke fill;
-    line-height: 1;
+    line-height: 0.85;
     margin: 0 0 20px;
     text-transform: uppercase;
   }
@@ -320,9 +320,9 @@
   .city-card--berlin { top: 1%; right: 2%; transform: rotate(7deg); }
   .city-card--london { top: 27%; left: 30%; transform: rotate(-7deg); }
   .city-card--tokyo { top: 63%; left: 4%; transform: rotate(-11deg); }
-  .travel-plane { position: absolute; width: clamp(64px, 7.5vw, 120px); filter: drop-shadow(0 6px 10px rgba(0,0,0,0.15)); }
-  .travel-plane--1 { top: 45%; left: 48%; transform: rotate(22deg); }
-  .travel-plane--2 { top: 85%; left: 40%; transform: rotate(26deg); }
+  .travel-plane { position: absolute; width: clamp(70px, 9vw, 150px); filter: drop-shadow(0 6px 10px rgba(0,0,0,0.15)); }
+  .travel-plane--1 { top: 15%; left: 60%; transform: rotate(-155deg); }
+  .travel-plane--2 { top: 52%; left: 22%; transform: rotate(-165deg); }
 
   /* ---------- final CTA ---------- */
   .final-cta {
@@ -476,6 +476,8 @@
     <div class="line">Flavor</div>
   </div>
 </section>
+
+<svg class="wave jelly" id="waveYellow" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,0 H-1 V155 S184.32,45 460.8,175 S860.16,89.327311 1121.28,155.023593 S1413.12,121.445613 1536,88.554387 V0" fill="#F6C445"></path></svg>
 
 <section class="travels">
   <div class="wrap travels-head">
@@ -657,6 +659,11 @@
           { ctrlX: 184.32, ctrlY: 85, endX: 460.8, endY: 145 },
           { ctrlX: 860.16, ctrlY: 120.672689, endX: 1121.28, endY: 155.023593 },
           { ctrlX: 1413.12, ctrlY: 121.445613, endX: 1536, endY: 124.29835 }
+        ] },
+      { id: 'waveYellow', baseY: 155, startY: 0, close: 'V0', points: [
+          { ctrlX: 184.32, ctrlY: 45, endX: 460.8, endY: 175 },
+          { ctrlX: 860.16, ctrlY: 89.327311, endX: 1121.28, endY: 155.023593 },
+          { ctrlX: 1413.12, ctrlY: 121.445613, endX: 1536, endY: 88.554387 }
         ] }
     ];
     waves.forEach((w, wi) => {
@@ -667,7 +674,7 @@
       function animate(now) {
         const t = (now - t0) / 1000;
         const segs = w.points.map((p, i) => {
-          const offset = Math.sin(t * (0.35 + i * 0.12) + i * 1.7 + wi * 2.1) * 18;
+          const offset = Math.sin(t * (1.3 + i * 0.4) + i * 1.7 + wi * 2.1) * 26;
           return `S${p.ctrlX},${(p.ctrlY + offset * 0.6).toFixed(2)} ${p.endX},${(p.endY + offset).toFixed(2)}`;
         }).join(' ');
         path.setAttribute('d', `M1536,${w.startY} H-1 V${w.baseY} ${segs} ${w.close}`);
