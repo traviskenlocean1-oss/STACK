@@ -198,12 +198,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* the source clip's subject sits off-center within its own frame (~14% right, ~12% down) —
-       scaling up and shifting recenters the visible content without re-encoding the video
-       (ffmpeg's own filtergraph corrupts this file's alpha channel on any re-encode, verified
-       via browser canvas readback, so the fix has to live at render time instead). */
-    transform: translate(-20.55%, -18.3%) scale(1.5);
-    transform-origin: center;
   }
   .hero-badges { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
   .hero-badges .badge { position: absolute; pointer-events: auto; }
@@ -288,14 +282,16 @@
   .wave-out-wrap { width: 100%; margin-top: -9%; position: relative; z-index: 5; overflow: hidden; transform: scaleY(0.65); transform-origin: top; transition: transform 0.9s cubic-bezier(.22,.9,.3,1); }
   .wave-out-wrap.wave-settled { transform: scaleY(1); }
 
-  .hands-photo-full { width: 100%; height: 90vh; overflow: hidden; }
+  .hands-photo-full { width: 100%; height: 90vh; overflow: hidden; position: relative; }
   .hands-photo-full img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hands-photo-full .wave--in { top: auto; bottom: 0; transform: scaleY(0.65); transform-origin: bottom; }
+  .hands-photo-full .wave--in.wave-settled { transform: scaleY(1); }
 
   /* ---------- ketchup / red section ---------- */
   .ketchup {
     background: var(--red);
     color: var(--cream);
-    padding: 170px 40px 100px;
+    padding: 170px 40px 50px;
     text-align: center;
     position: relative;
     clip-path: inset(0 0 100% 0);
@@ -405,8 +401,11 @@
     z-index: 3;
   }
   .city-card--berlin { top: 1%; right: 2%; transform: rotate(7deg); }
-  .city-card--london { top: 27%; left: 30%; transform: rotate(-7deg); }
+  .city-card--paris { top: 18%; left: 6%; transform: rotate(-9deg); }
+  .city-card--london { top: 27%; left: 34%; transform: rotate(-7deg); }
+  .city-card--sydney { top: 48%; right: 8%; transform: rotate(10deg); }
   .city-card--tokyo { top: 63%; left: 4%; transform: rotate(-11deg); }
+  .city-card--nyc { top: 84%; left: 32%; transform: rotate(6deg); }
   .travel-plane { position: absolute; width: clamp(70px, 9vw, 150px); filter: drop-shadow(0 6px 10px rgba(0,0,0,0.15)); }
   .travel-plane--1 { top: 15%; left: 60%; transform: rotate(-155deg); }
   .travel-plane--2 { top: 52%; left: 22%; transform: rotate(-165deg); }
@@ -422,17 +421,17 @@
   .final-cta h2 {
     font-family: "Mouse Memoirs", sans-serif;
     font-weight: normal;
-    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-size: clamp(3.2rem, 9vw, 7rem);
     color: var(--red);
     -webkit-text-stroke: 0.04em #fff;
     paint-order: stroke fill;
-    line-height: 0.95;
+    line-height: 0.92;
     margin: 0 0 20px;
     text-transform: uppercase;
   }
   .final-cta p { max-width: 420px; margin: 0 0 28px; font-size: 1.1rem; }
   .final-cta-photo { border-radius: 16px; overflow: hidden; }
-  .final-cta-photo img { width: 100%; height: auto; aspect-ratio: 4/3; object-fit: cover; }
+  .final-cta-photo img { width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; }
 
   /* ---------- footer ---------- */
   footer {
@@ -449,10 +448,16 @@
   .footer-wordmark {
     position: relative;
     text-align: center;
+    padding-top: 60px;
     padding-bottom: 20px;
   }
   .footer-wordmark .wordmark {
-    font-size: clamp(4rem, 18vw, 13rem);
+    /* base size raised close to the final fitted width so the fit-to-width scaleX below
+       only has to stretch it a little — a bigger base size needs less horizontal stretch
+       to reach full width, which is what keeps the letters looking proportionate instead
+       of visibly squashed-wide, while the JS-computed --fit-x still guarantees it always
+       spans the full container width regardless of "STACK" vs "CRAV"'s letter count. */
+    font-size: clamp(4rem, 18vw, 19rem);
     -webkit-text-stroke: 0.05em #fff;
     width: max-content;
     margin: 0 auto;
@@ -466,8 +471,8 @@
     opacity: 1;
   }
   .footer-thumb { position: absolute; width: 90px; }
-  .footer-thumb.f1 { top: -20px; left: 10%; }
-  .footer-thumb.f2 { top: 10%; right: 12%; width: 70px; }
+  .footer-thumb.f1 { top: 40px; left: 10%; }
+  .footer-thumb.f2 { top: calc(10% + 60px); right: 12%; width: 70px; }
 
   @media (max-width: 860px) {
     .wrap, header.site-nav { padding-left: 20px; padding-right: 20px; }
@@ -575,6 +580,7 @@
 
 <div class="hands-photo-full">
   <img src="assets/img/hands-burger.jpg" alt="Hands holding a loaded STACK burger">
+  <svg class="wave jelly wave--in" id="waveOutHands" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,300 H-1 V145 S184.32,255 460.8,125 S860.16,210.672689 1121.28,144.976407 S1413.12,178.554387 1536,211.44561300000002 V300" fill="#F8E3CD"></path></svg>
 </div>
 
 <section class="ingredients">
@@ -607,8 +613,11 @@
     <svg class="travel-plane travel-plane--1" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
     <svg class="travel-plane travel-plane--2" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
     <div class="city-card city-card--berlin"><span class="city-tag">BERLIN"</span><div class="city-card-inner"><img src="assets/img/travel-2.jpg" alt="Customer with a STACK burger in Berlin"></div></div>
+    <div class="city-card city-card--paris"><span class="city-tag">PARIS"</span><div class="city-card-inner"><img src="assets/img/customer-2.jpg" alt="Customer with a STACK burger in Paris"></div></div>
     <div class="city-card city-card--london"><span class="city-tag">LONDON"</span><div class="city-card-inner"><img src="assets/img/travel-1.jpg" alt="Customer with a STACK burger in London"></div></div>
+    <div class="city-card city-card--sydney"><span class="city-tag">SYDNEY"</span><div class="city-card-inner"><img src="assets/img/customer-1.jpg" alt="Customer with a STACK burger in Sydney"></div></div>
     <div class="city-card city-card--tokyo"><span class="city-tag">TOKYO"</span><div class="city-card-inner"><img src="assets/img/travel-3.jpg" alt="Customer with a STACK burger in Tokyo"></div></div>
+    <div class="city-card city-card--nyc"><span class="city-tag">NYC"</span><div class="city-card-inner"><img src="assets/img/customer-3.jpg" alt="Customer with a STACK burger in New York"></div></div>
   </div>
 </section>
 
@@ -803,6 +812,31 @@
       }
       requestAnimationFrame(animate);
     });
+
+    // waveOutHands sits at the BOTTOM of the full-bleed hands photo, so its fill
+    // occupies the LOWER half of the viewBox (mirror of the templates above) —
+    // the photo shows through above the curve, cream shows below it.
+    (function () {
+      const svg = document.getElementById('waveOutHands');
+      if (!svg) return;
+      const path = svg.querySelector('path');
+      const bottomPoints = [
+        { ctrlX: 184.32, ctrlY: 255, endX: 460.8, endY: 125 },
+        { ctrlX: 860.16, ctrlY: 210.672689, endX: 1121.28, endY: 144.976407 },
+        { ctrlX: 1413.12, ctrlY: 178.554387, endX: 1536, endY: 211.445613 }
+      ];
+      const t0 = performance.now() + ids.length * 900;
+      function animate(now) {
+        const t = (now - t0) / 1000;
+        const segs = bottomPoints.map((p, i) => {
+          const offset = Math.sin(t * (1.3 + i * 0.4) + i * 1.7 + ids.length * 2.1) * 26;
+          return `S${p.ctrlX},${(p.ctrlY + offset * 0.6).toFixed(2)} ${p.endX},${(p.endY + offset).toFixed(2)}`;
+        }).join(' ');
+        path.setAttribute('d', `M1536,300 H-1 V145 ${segs} V300`);
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    })();
   })();
 
   // ---- wave dividers: one-time scroll-triggered "settle" (CRAV's waves stretch into
