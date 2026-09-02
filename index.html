@@ -784,7 +784,7 @@
     <div class="hero-mid-text">Stacking&hellip;</div>
 
     <div class="hero-video-frame">
-      <canvas id="heroCanvas" width="1280" height="720"></canvas>
+      <canvas id="heroCanvas" width="960" height="540"></canvas>
     </div>
 
     <div class="hero-badges">
@@ -1074,13 +1074,25 @@
   // A real timing test on this exact <video>-seek mechanic showed ~150ms per
   // seek (measured via the 'seeked' event, not assumed) — VP9-alpha decode is
   // just too slow to seek at scroll speed, capping it at ~6-7fps regardless of
-  // any JS tweaking. A canvas draw of an already-decoded bitmap costs under a
-  // millisecond, which is what actually fixes the choppiness: no per-frame
-  // decode in the scroll path at all, just a blit of a bitmap that was decoded
-  // once up front. The 226 frames were extracted from the validated transparent
-  // WebM via an in-browser canvas capture (ffmpeg re-corrupts this asset's alpha
-  // to fully-opaque on any decode, confirmed again this session — never route
-  // this asset through ffmpeg, extraction included).
+  // any JS tweaking. Replaced with a canvas that blits pre-decoded frames
+  // instead of seeking a video. The 226 frames were extracted from the
+  // validated transparent WebM via an in-browser canvas capture (ffmpeg
+  // re-corrupts this asset's alpha to fully-opaque on any decode, confirmed
+  // again this session — never route this asset through ffmpeg, extraction
+  // included).
+  //
+  // Even pre-decoded, a GPU trace (Chrome's real "Decode Image" events, not
+  // a JS-side proxy) showed drawing a distinct ImageBitmap to canvas still
+  // costs real time — Canvas2D doesn't keep a persistent GPU texture across
+  // separate draw calls the way WebGL would, so every distinct frame pays
+  // an upload cost on every draw, not just the first. Priming every frame
+  // during the loader was tried and made no measurable difference (proven
+  // by re-tracing after) — confirming there's no cache being warmed. Two
+  // things that did measurably help: shrinking the frames from 1280x720 to
+  // 960x540 (upload cost scales with pixel count — an isolated A/B showed
+  // roughly 2x cheaper per draw), and capping how often a NEW frame is
+  // actually drawn during scroll so each draw gets room to finish instead
+  // of queueing up across every rAF tick.
   (function () {
     const section = document.getElementById('hero-video-section');
     const canvas = document.getElementById('heroCanvas');
@@ -1155,7 +1167,7 @@
     // with. Capping how often a NEW frame is actually drawn gives each
     // decode room to finish before the next is requested; the final resting
     // frame is never skipped, only the in-between ones during fast scrolling.
-    const MIN_DRAW_INTERVAL_MS = 45;
+    const MIN_DRAW_INTERVAL_MS = 24;
     let lastDrawTime = 0;
     function tick(now) {
       if (ready && targetFrame !== lastDrawn && now - lastDrawTime >= MIN_DRAW_INTERVAL_MS) {
