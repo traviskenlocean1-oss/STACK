@@ -31,7 +31,7 @@
     --ink: #1B1B1B;
   }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; font-size: 111%; }
   body {
     margin: 0;
     background: var(--cream);
@@ -39,6 +39,7 @@
     font-family: "Mouse Memoirs", sans-serif;
     overflow-x: hidden;
   }
+  body.loading { overflow: hidden; height: 100vh; }
   img { max-width: 100%; display: block; }
 
   .wrap { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
@@ -76,6 +77,84 @@
     opacity: 1;
   }
 
+  /* ---------- page loader ---------- */
+  #pageLoader {
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--red);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.6s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.6,0,.2,1);
+  }
+  #pageLoader.loader-out { opacity: 0; transform: scale(1.06); pointer-events: none; }
+  .loader-wave { position: absolute; left: 0; bottom: -2%; width: 100%; height: 40%; z-index: 0; }
+  .loader-stack {
+    position: relative; z-index: 2;
+    width: clamp(160px, 22vw, 300px);
+    height: clamp(140px, 19vw, 260px);
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  }
+  .loader-piece {
+    position: absolute; left: 50%;
+    border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+    opacity: 0; transform: translate(-50%, -60px) scale(0.4);
+    transition: transform 0.6s cubic-bezier(.34,1.56,.64,1), opacity 0.35s ease;
+  }
+  .loader-stack.piece-in .loader-piece { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  .lp-bottom { bottom: 0; width: 92%; height: 34%; background: #E8A23C; border-radius: 45% 45% 50% 50% / 40% 40% 60% 60%; transition-delay: 0.05s; }
+  .lp-patty { bottom: 22%; width: 96%; height: 30%; background: #6B3A24; border-radius: 48%; transition-delay: 0.22s; }
+  .lp-cheese { bottom: 40%; width: 100%; height: 20%; background: var(--yellow); clip-path: polygon(0% 40%, 100% 0%, 100% 60%, 0% 100%); transition-delay: 0.36s; }
+  .lp-top { bottom: 50%; width: 90%; height: 46%; background: #F0C877; border-radius: 50% 50% 42% 42% / 65% 65% 35% 35%; transition-delay: 0.5s; }
+  .loader-crumb {
+    position: absolute; top: 46%; left: 50%; width: 8px; height: 8px; border-radius: 50%;
+    opacity: 0; pointer-events: none;
+  }
+  .loader-stack.piece-in .loader-crumb {
+    animation: crumbBurst 0.7s cubic-bezier(.2,.8,.2,1) 0.5s forwards;
+  }
+  @keyframes crumbBurst {
+    0% { opacity: 1; transform: translate(-50%, -50%) translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) translate(var(--cx), var(--cy)) scale(0.4); }
+  }
+  .loader-status {
+    position: relative; z-index: 2;
+    margin-top: 34px;
+    font-family: "Mouse Memoirs", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: clamp(1rem, 1.6vw, 1.4rem);
+    color: #fff;
+    opacity: 0.95;
+  }
+  .loader-bar-track {
+    position: relative; z-index: 2;
+    width: min(70vw, 420px); height: 8px;
+    margin-top: 22px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .loader-bar-fill {
+    width: 0%; height: 100%;
+    background: var(--yellow);
+    border-radius: 999px;
+    transition: width 0.25s ease-out;
+  }
+
+  /* ---------- pop-words (bubble word-pop reveal) ---------- */
+  .pop-words .pw { display: inline-block; opacity: 0; transform: translateY(0.3em) scale(0.4); transition: transform 0.55s cubic-bezier(.34,1.56,.64,1), opacity 0.3s ease; }
+  .pop-words.pop-in .pw { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* ---------- idle float ---------- */
+  @keyframes idleFloat {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, -14px); }
+  }
+  @keyframes idleFloatSelf {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
   /* ---------- nav ---------- */
   header.site-nav {
     position: sticky; top: 0; z-index: 50;
@@ -98,24 +177,29 @@
   .menu-overlay.is-open { opacity: 1; pointer-events: auto; }
   .menu-panel {
     position: absolute; top: calc(100% + 12px); right: 0;
-    width: 280px; z-index: 55;
+    width: min(92vw, 460px); z-index: 55;
     background: var(--red); border-radius: 20px;
-    padding: 28px;
+    padding: 40px 36px;
     box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-    display: flex; flex-direction: column; gap: 16px;
+    display: flex; flex-direction: column; gap: 20px;
     opacity: 0; transform: translateY(-16px) scale(0.96);
     pointer-events: none;
     transition: opacity 0.3s ease, transform 0.3s cubic-bezier(.2,.8,.2,1);
   }
   .menu-panel.is-open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
   .menu-panel a {
-    font-family: "Mouse Memoirs", sans-serif;
-    font-size: 1.5rem;
+    font-family: "Modak", cursive;
+    font-size: clamp(2.4rem, 4.2vw, 4.6rem);
+    line-height: 1.05;
+    -webkit-text-stroke: 0.03em rgba(0,0,0,0.15);
+    paint-order: stroke fill;
     text-transform: uppercase;
     color: var(--cream);
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, transform 0.2s ease;
+    display: inline-block;
   }
+  .menu-panel a:hover { transform: translateX(6px) scale(1.03); }
   .menu-panel a:hover { color: var(--yellow); }
   .menu-panel__divider { height: 1px; background: rgba(248,227,204,0.25); margin: 4px 0; }
   .menu-panel__tag { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; color: rgba(248,227,204,0.7); }
@@ -192,11 +276,13 @@
     transform: translate(-50%, 0);
     z-index: 1;
     pointer-events: none;
+    animation: idleFloat 3.6s ease-in-out infinite;
   }
   .hero-video-frame {
     position: absolute;
     inset: 2%;
     z-index: 2;
+    animation: idleFloatSelf 4.2s ease-in-out infinite;
   }
   .hero-video-frame video {
     width: 100%;
@@ -206,11 +292,11 @@
   .hero-badges { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
   .hero-badges .badge { position: absolute; pointer-events: auto; }
   .hero-badges .b1 { top: 14%; left: 8%; }
-  .hero-badges .b2 { bottom: 18%; right: 8%; --rot: 7deg; }
+  .hero-badges .b2 { bottom: 38%; right: 6%; --rot: 7deg; }
   .hero-text {
     position: absolute;
     z-index: 3;
-    bottom: 6%;
+    bottom: 13%;
     left: 0; right: 0;
     display: flex;
     justify-content: space-between;
@@ -218,10 +304,11 @@
     pointer-events: none;
   }
   .hero-text p {
-    max-width: 260px;
-    font-size: 1.05rem;
-    line-height: 1.35;
+    max-width: 720px;
+    font-size: clamp(1.6rem, 2.85vw, 2.9rem);
+    line-height: 1.15;
     margin: 0;
+    font-weight: normal;
   }
   .hero-cta { text-align: center; margin-top: 24px; }
 
@@ -452,6 +539,100 @@
   .final-cta-photo { border-radius: 16px; overflow: hidden; }
   .final-cta-photo img { width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; }
 
+  /* ---------- burgers menu section ---------- */
+  .menu-hero {
+    position: relative;
+    height: 70vh;
+    min-height: 460px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    overflow: hidden;
+  }
+  .menu-hero img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    filter: brightness(0.32) saturate(1.1);
+    z-index: 0;
+  }
+  .menu-hero__icon { font-size: clamp(2.6rem, 5vw, 4.4rem); margin-bottom: 8px; position: relative; z-index: 1; }
+  .menu-hero h2 {
+    position: relative; z-index: 1;
+    font-family: "Mouse Memoirs", sans-serif;
+    font-weight: normal;
+    font-size: clamp(3.2rem, 8.5vw, 8rem);
+    color: var(--yellow);
+    -webkit-text-stroke: 0.035em #fff;
+    paint-order: stroke fill;
+    line-height: 0.95;
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .menu-grid { padding: 90px 40px 120px; }
+  .menu-grid__head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    max-width: 1400px; margin: 0 auto 50px;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .menu-grid__head h2 {
+    font-family: "Mouse Memoirs", sans-serif;
+    font-weight: normal;
+    font-size: clamp(2.6rem, 5.5vw, 5rem);
+    color: var(--red);
+    -webkit-text-stroke: 0.03em #fff;
+    paint-order: stroke fill;
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .menu-grid__count { font-size: 1.1rem; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.6; }
+  .menu-cards {
+    max-width: 1400px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
+  }
+  .menu-card {
+    background: #fff; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.1);
+    opacity: 0; transform: translateY(50px) scale(0.92);
+    transition: transform 0.6s cubic-bezier(.2,.8,.2,1), opacity 0.5s ease;
+  }
+  .menu-card.card-in { opacity: 1; transform: translateY(0) scale(1); }
+  .menu-card__photo { position: relative; padding-top: 24px; }
+  .menu-card__photo img {
+    width: 100%; aspect-ratio: 4/5; object-fit: cover;
+    margin-bottom: -14px;
+  }
+  .menu-card__checker {
+    height: 22px;
+    background-image:
+      repeating-conic-gradient(var(--red) 0% 25%, transparent 0% 50%);
+    background-size: 22px 22px;
+    background-color: #fff;
+  }
+  .menu-card__add {
+    position: absolute; top: 20px; right: 20px; z-index: 2;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--yellow); border: none; color: #fff;
+    font-size: 1.6rem; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+  }
+  .menu-card__add:hover { transform: scale(1.1) rotate(90deg); }
+  .menu-card__info {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 26px 26px;
+  }
+  .menu-card__info span:first-child {
+    font-family: "Modak", cursive;
+    color: var(--red);
+    -webkit-text-stroke: 0.02em rgba(0,0,0,0.06);
+    paint-order: stroke fill;
+    font-size: clamp(1.3rem, 1.8vw, 1.9rem);
+    line-height: 1;
+  }
+  .menu-card__info span:last-child { font-size: 1.5rem; font-weight: bold; }
+  .menu-card:last-child { grid-column: 1 / -1; max-width: 420px; margin: 0 auto; }
+  @media (max-width: 1080px) { .menu-cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .menu-cards { grid-template-columns: 1fr; } .menu-card:last-child { max-width: none; } }
+
   /* ---------- footer ---------- */
   footer {
     padding: 60px 40px 0;
@@ -497,9 +678,19 @@
     .wrap, header.site-nav { padding-left: 20px; padding-right: 20px; }
     .final-cta { grid-template-columns: 1fr; }
     .ketchup-stats { flex-direction: column; gap: 24px; text-align: center; }
+    .site-nav .wordmark { font-size: 1.8rem; }
+    .site-nav .pill { font-size: 0.8rem; padding: 9px 16px; }
+    .site-nav .actions { gap: 8px; }
+    .menu-panel { padding: 30px 26px; }
+    .menu-panel a { font-size: clamp(1.9rem, 9vw, 2.6rem); }
     .hero-video-frame { width: 92vw; }
-    .hero-text { flex-direction: column; gap: 16px; align-items: center; text-align: center; }
+    .hero-badges .b1 { top: 13%; left: 4%; }
+    .hero-badges .b2 { top: 13%; bottom: auto; right: 4%; left: auto; }
+    .hero-text { flex-direction: column; gap: 16px; align-items: center; text-align: center; bottom: 4%; }
+    .hero-text p { font-size: 1.25rem; max-width: 92%; line-height: 1.25; }
     #hero-video-section { height: 280vh; }
+    .menu-hero h2 { font-size: clamp(2.6rem, 12vw, 5rem); }
+    .menu-grid__head { flex-direction: column; align-items: flex-start; }
     .travel-path { aspect-ratio: auto; height: auto; display: flex; flex-direction: column; align-items: center; gap: 50px; padding-bottom: 20px; }
     .travel-path__line, .travel-plane { display: none; }
     .city-card { position: static; width: 220px; transform: none !important; }
@@ -512,7 +703,25 @@
   }
 </style>
 </head>
-<body>
+<body class="loading">
+
+<div id="pageLoader" role="dialog" aria-modal="true" aria-label="Page loading">
+  <svg class="loader-wave jelly" id="loaderWave" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,300 H-1 V145 S184.32,255 460.8,125 S860.16,210.672689 1121.28,144.976407 S1413.12,178.554387 1536,211.44561300000002 V300" fill="#F6C445"></path></svg>
+  <div class="loader-stack" id="loaderStack">
+    <div class="loader-piece lp-bottom"></div>
+    <div class="loader-piece lp-patty"></div>
+    <div class="loader-piece lp-cheese"></div>
+    <div class="loader-piece lp-top"></div>
+    <div class="loader-crumb" style="--cx:-46px; --cy:-58px; background:#F6C445;"></div>
+    <div class="loader-crumb" style="--cx:38px; --cy:-64px; background:#fff;"></div>
+    <div class="loader-crumb" style="--cx:-64px; --cy:-18px; background:#60A905;"></div>
+    <div class="loader-crumb" style="--cx:58px; --cy:-24px; background:#F6C445;"></div>
+    <div class="loader-crumb" style="--cx:-20px; --cy:-72px; background:#fff;"></div>
+    <div class="loader-crumb" style="--cx:22px; --cy:-70px; background:#60A905;"></div>
+  </div>
+  <div class="loader-status" id="loaderStatus">Smashing fresh patties&hellip;</div>
+  <div class="loader-bar-track"><div class="loader-bar-fill" id="loaderBarFill"></div></div>
+</div>
 
 <header class="site-nav">
   <a href="/" class="wordmark" id="navWordmark">STACK</a>
@@ -535,8 +744,8 @@
 <section id="hero-video-section">
   <div class="hero-sticky">
     <div class="hero-bg-text">
-      <div class="line">Loaded</div>
-      <div class="line">Different</div>
+      <div class="line pop-words" id="heroWord1"><span class="pw" style="transition-delay:0.1s">Loaded</span></div>
+      <div class="line pop-words" id="heroWord2"><span class="pw" style="transition-delay:0.24s">Different</span></div>
     </div>
     <div class="hero-mid-text">Stacking&hellip;</div>
 
@@ -559,7 +768,12 @@
 <section class="classic">
   <div class="wordmark classic-wordmark">STACK</div>
   <span class="badge">TOP LOADED</span>
-  <h2>Juicy Cheesy<br>Loaded Different</h2>
+  <h2 class="pop-words" id="classicHeadline">
+    <span class="pw" style="transition-delay:0s">Juicy</span>
+    <span class="pw" style="transition-delay:0.08s">Cheesy</span><br>
+    <span class="pw" style="transition-delay:0.2s">Loaded</span>
+    <span class="pw" style="transition-delay:0.28s">Different</span>
+  </h2>
   <p>STACK smashes prime beef hot on the flat top, then builds it up with toppings you won't find anywhere else. Fresh, fully loaded, and never basic.</p>
   <a href="#menu" class="pill pill--red">ORDER NOW</a>
   <div class="classic-photo"><img src="assets/img/classic-callout.jpg" alt="Loaded STACK smash burger held up close"></div>
@@ -652,6 +866,58 @@
   <div class="final-cta-photo"><img src="assets/img/cta-eating.jpg" alt="Digging into a loaded STACK burger and fries"></div>
 </section>
 
+<section class="menu-hero" id="menu">
+  <img src="assets/img/hands-burger.jpg" alt="" aria-hidden="true">
+  <div class="menu-hero__icon">😋</div>
+  <h2>Built To Be<br>Devoured</h2>
+</section>
+
+<section class="menu-grid">
+  <div class="wrap">
+    <div class="menu-grid__head">
+      <h2>Our Signature Stacks</h2>
+      <span class="menu-grid__count">7 ITEMS</span>
+    </div>
+    <div class="menu-cards" id="menuCards">
+      <article class="menu-card">
+        <div class="menu-card__photo"><img src="assets/img/menu-classic.jpg" alt="The Classic Stack smash burger"><button class="menu-card__add" aria-label="Add The Classic Stack">+</button></div>
+        <div class="menu-card__checker"></div>
+        <div class="menu-card__info"><span>The Classic Stack</span><span>$14</span></div>
+      </article>
+      <article class="menu-card">
+        <div class="menu-card__photo"><img src="assets/img/menu-spicy.jpg" alt="Spicy Jalapeño Stack smash burger"><button class="menu-card__add" aria-label="Add Spicy Jalapeño Stack">+</button></div>
+        <div class="menu-card__checker"></div>
+        <div class="menu-card__info"><span>Spicy Jalapeño Stack</span><span>$17</span></div>
+      </article>
+      <article class="menu-card">
+        <div class="menu-card__photo"><img src="assets/img/menu-bacon.jpg" alt="Bacon Cheddar Stack smash burger"><button class="menu-card__add" aria-label="Add Bacon Cheddar Stack">+</button></div>
+        <div class="menu-card__checker"></div>
+        <div class="menu-card__info"><span>Bacon Cheddar Stack</span><span>$19</span></div>
+      </article>
+      <article class="menu-card">
+        <div class="menu-card__photo"><img src="assets/img/menu-veggie.jpg" alt="Garden Veggie Stack burger"><button class="menu-card__add" aria-label="Add Garden Veggie Stack">+</button></div>
+        <div class="menu-card__checker"></div>
+        <div class="menu-card__info"><span>Garden Veggie Stack</span><span>$13</span></div>
+      </article>
+      <article class="menu-card">
+        <div class="menu-card__photo"><img src="assets/img/menu-bbq.jpg" alt="Smoky BBQ Stack smash burger"><button class="menu-card__add" aria-label="Add Smoky BBQ Stack">+</button></div>
+        <div class="menu-card__checker"></div>
+        <div class="menu-card__info"><span>Smoky BBQ Stack</span><span>$18</span></div>
+      </article>
+      <article class="menu-card">
+        <div class="menu-card__photo"><img src="assets/img/menu-mushroom.jpg" alt="Mushroom Swiss Stack smash burger"><button class="menu-card__add" aria-label="Add Mushroom Swiss Stack">+</button></div>
+        <div class="menu-card__checker"></div>
+        <div class="menu-card__info"><span>Mushroom Swiss Stack</span><span>$18</span></div>
+      </article>
+      <article class="menu-card">
+        <div class="menu-card__photo"><img src="assets/img/menu-fries.jpg" alt="Loaded fries"><button class="menu-card__add" aria-label="Add Loaded Fries">+</button></div>
+        <div class="menu-card__checker"></div>
+        <div class="menu-card__info"><span>Loaded Fries</span><span>$6</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="wrap footer-top">
     <div class="footer-nav">
@@ -676,6 +942,87 @@
   let ti = 0;
   setInterval(() => { ti = (ti + 1) % titles.length; document.title = "STACK | " + titles[ti]; }, 2200);
 
+  // ---- page loader: real hero-video fetch progress drives the bar, burger stacks
+  // itself piece by piece, status text cycles, then the loader clears and the hero
+  // headline pops in word by word ----
+  const pageLoaderEl = document.getElementById('pageLoader');
+  const loaderBarFill = document.getElementById('loaderBarFill');
+  const loaderStatusEl = document.getElementById('loaderStatus');
+  const loaderStackEl = document.getElementById('loaderStack');
+  let loaderProgress = 0;
+  let loaderDismissed = false;
+
+  function setLoaderProgress(p) {
+    loaderProgress = Math.max(loaderProgress, Math.min(1, p));
+    if (loaderBarFill) loaderBarFill.style.width = (loaderProgress * 100).toFixed(1) + '%';
+  }
+
+  function dismissLoader() {
+    if (loaderDismissed || !pageLoaderEl) return;
+    loaderDismissed = true;
+    setLoaderProgress(1);
+    pageLoaderEl.classList.add('loader-out');
+    document.body.classList.remove('loading');
+    setTimeout(() => { pageLoaderEl.style.display = 'none'; }, 700);
+    const w1 = document.getElementById('heroWord1');
+    const w2 = document.getElementById('heroWord2');
+    if (w1) w1.classList.add('pop-in');
+    if (w2) setTimeout(() => w2.classList.add('pop-in'), 110);
+  }
+
+  requestAnimationFrame(() => loaderStackEl && loaderStackEl.classList.add('piece-in'));
+
+  const loaderPhrases = ["Smashing fresh patties…", "Melting the cheddar…", "Toasting the buns…", "Stacking it up…"];
+  let loaderPhraseIndex = 0;
+  const loaderPhraseTimer = setInterval(() => {
+    loaderPhraseIndex = (loaderPhraseIndex + 1) % loaderPhrases.length;
+    if (loaderStatusEl) loaderStatusEl.textContent = loaderPhrases[loaderPhraseIndex];
+  }, 650);
+
+  // trickle fallback so the bar keeps moving even if content-length is missing
+  // or the browser can't report byte-level fetch progress
+  const loaderTrickle = setInterval(() => {
+    if (loaderProgress < 0.9) setLoaderProgress(loaderProgress + 0.025);
+  }, 180);
+
+  const LOADER_MIN_MS = 1700;
+  const loaderStartTime = performance.now();
+  function finishLoaderWhenReady() {
+    const elapsed = performance.now() - loaderStartTime;
+    const wait = Math.max(0, LOADER_MIN_MS - elapsed);
+    setTimeout(() => {
+      clearInterval(loaderPhraseTimer);
+      clearInterval(loaderTrickle);
+      dismissLoader();
+    }, wait);
+  }
+  // safety net: never leave a visitor stuck behind the loader if the video fetch hangs
+  setTimeout(finishLoaderWhenReady, 8000);
+
+  // ---- loader's own bottom wave, same continuous jelly wobble as the section dividers ----
+  (function () {
+    const svg = document.getElementById('loaderWave');
+    if (!svg) return;
+    const path = svg.querySelector('path');
+    const bottomPoints = [
+      { ctrlX: 184.32, ctrlY: 255, endX: 460.8, endY: 125 },
+      { ctrlX: 860.16, ctrlY: 210.672689, endX: 1121.28, endY: 144.976407 },
+      { ctrlX: 1413.12, ctrlY: 178.554387, endX: 1536, endY: 211.445613 }
+    ];
+    const t0 = performance.now();
+    function animate(now) {
+      if (loaderDismissed) return;
+      const t = (now - t0) / 1000;
+      const segs = bottomPoints.map((p, i) => {
+        const offset = Math.sin(t * (1.3 + i * 0.4) + i * 1.7) * 26;
+        return `S${p.ctrlX},${(p.ctrlY + offset * 0.6).toFixed(2)} ${p.endX},${(p.endY + offset).toFixed(2)}`;
+      }).join(' ');
+      path.setAttribute('d', `M1536,300 H-1 V145 ${segs} V300`);
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+  })();
+
   // ---- scroll-scrubbed hero video ----
   (function () {
     const section = document.getElementById('hero-video-section');
@@ -687,16 +1034,32 @@
     let lastFrameIndex = -1;
 
     async function loadVideo(src) {
-      const res = await fetch(src);
-      const blob = await res.blob();
-      video.src = URL.createObjectURL(blob);
-      await new Promise((resolve) => {
-        video.addEventListener('loadedmetadata', resolve, { once: true });
-      });
-      video.pause();
-      video.currentTime = 0;
-      ready = true;
-      requestAnimationFrame(tick);
+      try {
+        const res = await fetch(src);
+        const total = parseInt(res.headers.get('content-length') || '0', 10);
+        let received = 0;
+        const chunks = [];
+        const reader = res.body.getReader();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+          if (total) setLoaderProgress(received / total);
+        }
+        const blob = new Blob(chunks);
+        video.src = URL.createObjectURL(blob);
+        await new Promise((resolve) => {
+          video.addEventListener('loadedmetadata', resolve, { once: true });
+        });
+        video.pause();
+        video.currentTime = 0;
+        ready = true;
+        requestAnimationFrame(tick);
+        finishLoaderWhenReady();
+      } catch (e) {
+        finishLoaderWhenReady();
+      }
     }
 
     function getProgress() {
@@ -942,6 +1305,49 @@
       });
     }, { threshold: 0.3 });
     io.observe(wordmark);
+  })();
+
+  // ---- "Loaded Different" classic headline: same bubble word-pop as the hero, scroll-triggered ----
+  (function () {
+    const el = document.getElementById('classicHeadline');
+    if (!el) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          el.classList.add('pop-in');
+          io.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+  })();
+
+  // ---- menu cards: staggered pop-in as the Burgers section scrolls into view ----
+  (function () {
+    const cards = document.querySelectorAll('.menu-card');
+    if (!cards.length) return;
+    cards.forEach((card, i) => { card.style.transitionDelay = ((i % 3) * 0.09).toFixed(2) + 's'; });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('card-in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    cards.forEach((c) => io.observe(c));
+  })();
+
+  // ---- add-to-cart "+" buttons: a satisfying tactile pop, no cart wired up (demo site) ----
+  (function () {
+    document.querySelectorAll('.menu-card__add').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btn.animate(
+          [{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }],
+          { duration: 320, easing: 'cubic-bezier(.34,1.56,.64,1)' }
+        );
+      });
+    });
   })();
 </script>
 
