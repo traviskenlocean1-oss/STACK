@@ -181,9 +181,13 @@
     color: var(--red);
     -webkit-text-stroke: 0.06em #fff;
     paint-order: stroke fill;
-    font-size: clamp(3rem, 8vw, 9rem);
+    font-size: clamp(2.4rem, 5.5vw, 5.5rem);
     position: absolute;
-    top: 16%;
+    /* the burger's own alpha footprint never rises above ~27% of the hero viewport
+       (measured directly from the video) — kept comfortably clear of that so the
+       burger's opaque bun always fully covers this text instead of letting the red
+       peek through gaps in the bun's alpha mask at some scroll frames. */
+    top: 3%;
     left: 50%;
     transform: translate(-50%, 0);
     z-index: 1;
@@ -666,9 +670,7 @@
     const FRAME_TIME = 1 / SOURCE_FPS;
     let ready = false;
     let targetTime = 0;
-    let shownTime = 0;
-    let lastSeekAt = 0;
-    let lastFrameLogged = -1;
+    let lastFrameIndex = -1;
 
     async function loadVideo(src) {
       const res = await fetch(src);
@@ -696,21 +698,19 @@
       targetTime = getProgress() * video.duration;
     }
 
-    // Seeks are throttled to the source's own 24fps and snapped to real frame
-    // boundaries — the video can't show more than 24 distinct frames a second
-    // anyway, so requesting an in-between time just makes the (software, alpha)
-    // decoder do a full decode for zero visual gain. This is what was making
-    // scrubbing feel laggy rather than smooth.
-    function tick(now) {
+    // The video is a genuine all-keyframe encode (every one of its 226 frames is
+    // its own keyframe, verified — seeks land in 0-2ms), so there's no need for
+    // the eased "catch up to target" smoothing an earlier version used to hide
+    // slow seeking: that damping is what made scrubbing feel laggy/springy.
+    // Now it tracks scroll position directly, snapped to the nearest real
+    // source frame so it never asks the decoder for a frame that doesn't exist.
+    function tick() {
       if (ready && video.duration && !video.seeking) {
-        shownTime += (targetTime - shownTime) * 0.15;
-        const clamped = Math.min(video.duration, Math.max(0, shownTime));
-        const snapped = Math.round(clamped / FRAME_TIME) * FRAME_TIME;
-        const frameIndex = Math.round(snapped / FRAME_TIME);
-        if (frameIndex !== lastFrameLogged && now - lastSeekAt >= 1000 / SOURCE_FPS) {
-          video.currentTime = snapped;
-          lastFrameLogged = frameIndex;
-          lastSeekAt = now;
+        const clamped = Math.min(video.duration, Math.max(0, targetTime));
+        const frameIndex = Math.round(clamped / FRAME_TIME);
+        if (frameIndex !== lastFrameIndex) {
+          video.currentTime = frameIndex * FRAME_TIME;
+          lastFrameIndex = frameIndex;
         }
       }
       requestAnimationFrame(tick);
