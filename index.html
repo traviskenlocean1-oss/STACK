@@ -1167,6 +1167,27 @@
   })();
 
   // ---- ketchup section: clip-path wall reveal driven by scroll ----
+  // ---- shared helper: only run a continuous rAF loop while its element is
+  // actually near the viewport, instead of forever from load to page close.
+  // Same visual result when visible, zero cost the rest of the page's life —
+  // these loops were previously running unconditionally for every scroll
+  // section on the page at once, competing for the same frame budget. ----
+  function gateLoopToVisibility(el, frameFn) {
+    let rafId = null;
+    function loop(t) { frameFn(t); rafId = requestAnimationFrame(loop); }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (rafId === null) rafId = requestAnimationFrame(loop);
+        } else if (rafId !== null) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+      });
+    }, { rootMargin: '50% 0px 50% 0px' });
+    io.observe(el);
+  }
+
   (function () {
     const section = document.getElementById('ketchupSection');
     if (!section) return;
@@ -1178,9 +1199,8 @@
       let progress = (start - rect.top) / (start - end);
       progress = Math.min(1, Math.max(0, progress));
       section.style.clipPath = `inset(0 0 ${(1 - progress) * 100}% 0)`;
-      requestAnimationFrame(update);
     }
-    requestAnimationFrame(update);
+    gateLoopToVisibility(section, update);
   })();
 
   // ---- "Food That Feels Good" word-by-word reveal, triggers once in view ----
@@ -1239,9 +1259,8 @@
           return `S${p.ctrlX},${(p.ctrlY + offset * 0.6).toFixed(2)} ${p.endX},${(p.endY + offset).toFixed(2)}`;
         }).join(' ');
         path.setAttribute('d', `M1536,0 H-1 V155 ${segs} V0`);
-        requestAnimationFrame(animate);
       }
-      requestAnimationFrame(animate);
+      gateLoopToVisibility(svg, animate);
     });
 
     // waveOutHands sits at the BOTTOM of the full-bleed hands photo, so its fill
@@ -1264,9 +1283,8 @@
           return `S${p.ctrlX},${(p.ctrlY + offset * 0.6).toFixed(2)} ${p.endX},${(p.endY + offset).toFixed(2)}`;
         }).join(' ');
         path.setAttribute('d', `M1536,300 H-1 V145 ${segs} V300`);
-        requestAnimationFrame(animate);
       }
-      requestAnimationFrame(animate);
+      gateLoopToVisibility(svg, animate);
     })();
   })();
 
