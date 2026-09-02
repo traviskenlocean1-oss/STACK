@@ -141,6 +141,21 @@
     transition: width 0.25s ease-out;
   }
 
+  /* ---------- view swap (BURGERS is its own "page" within this single file,
+     matching CRAV's separate /menu route) — a big dramatic scale+fade, same
+     treatment used for page-to-page transitions on other client sites ---------- */
+  #burgersView[hidden] { display: none; }
+  #homeView, #burgersView { transform-origin: center top; }
+  .view-leaving { animation: viewOut 0.4s cubic-bezier(.4,0,.7,0) forwards; }
+  .view-entering { animation: viewIn 0.6s cubic-bezier(.16,1,.3,1) forwards; }
+  @keyframes viewOut {
+    to { opacity: 0; transform: scale(0.96); }
+  }
+  @keyframes viewIn {
+    from { opacity: 0; transform: scale(1.04); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
   /* ---------- pop-words (bubble word-pop reveal) ---------- */
   .pop-words .pw { display: inline-block; opacity: 0; transform: translateY(0.3em) scale(0.4); transition: transform 0.55s cubic-bezier(.34,1.56,.64,1), opacity 0.3s ease; }
   .pop-words.pop-in .pw { opacity: 1; transform: translateY(0) scale(1); }
@@ -282,7 +297,6 @@
     position: absolute;
     inset: 2%;
     z-index: 2;
-    animation: idleFloatSelf 4.2s ease-in-out infinite;
   }
   .hero-video-frame video {
     width: 100%;
@@ -292,11 +306,11 @@
   .hero-badges { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
   .hero-badges .badge { position: absolute; pointer-events: auto; }
   .hero-badges .b1 { top: 14%; left: 8%; }
-  .hero-badges .b2 { bottom: 38%; right: 6%; --rot: 7deg; }
+  .hero-badges .b2 { bottom: 20%; right: 6%; --rot: 7deg; }
   .hero-text {
     position: absolute;
     z-index: 3;
-    bottom: 13%;
+    bottom: 8%;
     left: 0; right: 0;
     display: flex;
     justify-content: space-between;
@@ -304,9 +318,9 @@
     pointer-events: none;
   }
   .hero-text p {
-    max-width: 720px;
-    font-size: clamp(1.6rem, 2.85vw, 2.9rem);
-    line-height: 1.15;
+    max-width: 460px;
+    font-size: clamp(1.05rem, 1.55vw, 1.65rem);
+    line-height: 1.35;
     margin: 0;
     font-weight: normal;
   }
@@ -726,11 +740,11 @@
 <header class="site-nav">
   <a href="/" class="wordmark" id="navWordmark">STACK</a>
   <div class="actions" style="position:relative;">
-    <a href="#menu" class="pill pill--red">BURGERS</a>
+    <a href="#menu" class="pill pill--red" data-view="burgers">BURGERS</a>
     <button class="pill pill--outline" id="menuBtn">MENU ☰</button>
     <div class="menu-panel" id="menuPanel">
-      <a href="#">Home</a>
-      <a href="#menu">Burgers</a>
+      <a href="#" data-view="home">Home</a>
+      <a href="#menu" data-view="burgers">Burgers</a>
       <a href="#">Spices</a>
       <a href="#">Locations</a>
       <a href="#">Contact</a>
@@ -741,6 +755,7 @@
 </header>
 <div class="menu-overlay" id="menuOverlay"></div>
 
+<div id="homeView">
 <section id="hero-video-section">
   <div class="hero-sticky">
     <div class="hero-bg-text">
@@ -775,7 +790,7 @@
     <span class="pw" style="transition-delay:0.28s">Different</span>
   </h2>
   <p>STACK smashes prime beef hot on the flat top, then builds it up with toppings you won't find anywhere else. Fresh, fully loaded, and never basic.</p>
-  <a href="#menu" class="pill pill--red">ORDER NOW</a>
+  <a href="#menu" class="pill pill--red" data-view="burgers">ORDER NOW</a>
   <div class="classic-photo"><img src="assets/img/classic-callout.jpg" alt="Loaded STACK smash burger held up close"></div>
 </section>
 
@@ -861,11 +876,13 @@
   <div>
     <h2>Feel The Change</h2>
     <p>Smashed for the bold, built for the hungry. Dive into a legendary loaded experience where every crispy edge and juicy layer rules.</p>
-    <a href="#menu" class="pill pill--red">ORDER NOW</a>
+    <a href="#menu" class="pill pill--red" data-view="burgers">ORDER NOW</a>
   </div>
   <div class="final-cta-photo"><img src="assets/img/cta-eating.jpg" alt="Digging into a loaded STACK burger and fries"></div>
 </section>
+</div>
 
+<div id="burgersView" hidden>
 <section class="menu-hero" id="menu">
   <img src="assets/img/hands-burger.jpg" alt="" aria-hidden="true">
   <div class="menu-hero__icon">😋</div>
@@ -880,49 +897,50 @@
     </div>
     <div class="menu-cards" id="menuCards">
       <article class="menu-card">
-        <div class="menu-card__photo"><img src="assets/img/menu-classic.jpg" alt="The Classic Stack smash burger"><button class="menu-card__add" aria-label="Add The Classic Stack">+</button></div>
+        <div class="menu-card__photo"><img loading="lazy" src="assets/img/menu-classic.jpg" alt="The Classic Stack smash burger"><button class="menu-card__add" aria-label="Add The Classic Stack">+</button></div>
         <div class="menu-card__checker"></div>
         <div class="menu-card__info"><span>The Classic Stack</span><span>$14</span></div>
       </article>
       <article class="menu-card">
-        <div class="menu-card__photo"><img src="assets/img/menu-spicy.jpg" alt="Spicy Jalapeño Stack smash burger"><button class="menu-card__add" aria-label="Add Spicy Jalapeño Stack">+</button></div>
+        <div class="menu-card__photo"><img loading="lazy" src="assets/img/menu-spicy.jpg" alt="Spicy Jalapeño Stack smash burger"><button class="menu-card__add" aria-label="Add Spicy Jalapeño Stack">+</button></div>
         <div class="menu-card__checker"></div>
         <div class="menu-card__info"><span>Spicy Jalapeño Stack</span><span>$17</span></div>
       </article>
       <article class="menu-card">
-        <div class="menu-card__photo"><img src="assets/img/menu-bacon.jpg" alt="Bacon Cheddar Stack smash burger"><button class="menu-card__add" aria-label="Add Bacon Cheddar Stack">+</button></div>
+        <div class="menu-card__photo"><img loading="lazy" src="assets/img/menu-bacon.jpg" alt="Bacon Cheddar Stack smash burger"><button class="menu-card__add" aria-label="Add Bacon Cheddar Stack">+</button></div>
         <div class="menu-card__checker"></div>
         <div class="menu-card__info"><span>Bacon Cheddar Stack</span><span>$19</span></div>
       </article>
       <article class="menu-card">
-        <div class="menu-card__photo"><img src="assets/img/menu-veggie.jpg" alt="Garden Veggie Stack burger"><button class="menu-card__add" aria-label="Add Garden Veggie Stack">+</button></div>
+        <div class="menu-card__photo"><img loading="lazy" src="assets/img/menu-veggie.jpg" alt="Garden Veggie Stack burger"><button class="menu-card__add" aria-label="Add Garden Veggie Stack">+</button></div>
         <div class="menu-card__checker"></div>
         <div class="menu-card__info"><span>Garden Veggie Stack</span><span>$13</span></div>
       </article>
       <article class="menu-card">
-        <div class="menu-card__photo"><img src="assets/img/menu-bbq.jpg" alt="Smoky BBQ Stack smash burger"><button class="menu-card__add" aria-label="Add Smoky BBQ Stack">+</button></div>
+        <div class="menu-card__photo"><img loading="lazy" src="assets/img/menu-bbq.jpg" alt="Smoky BBQ Stack smash burger"><button class="menu-card__add" aria-label="Add Smoky BBQ Stack">+</button></div>
         <div class="menu-card__checker"></div>
         <div class="menu-card__info"><span>Smoky BBQ Stack</span><span>$18</span></div>
       </article>
       <article class="menu-card">
-        <div class="menu-card__photo"><img src="assets/img/menu-mushroom.jpg" alt="Mushroom Swiss Stack smash burger"><button class="menu-card__add" aria-label="Add Mushroom Swiss Stack">+</button></div>
+        <div class="menu-card__photo"><img loading="lazy" src="assets/img/menu-mushroom.jpg" alt="Mushroom Swiss Stack smash burger"><button class="menu-card__add" aria-label="Add Mushroom Swiss Stack">+</button></div>
         <div class="menu-card__checker"></div>
         <div class="menu-card__info"><span>Mushroom Swiss Stack</span><span>$18</span></div>
       </article>
       <article class="menu-card">
-        <div class="menu-card__photo"><img src="assets/img/menu-fries.jpg" alt="Loaded fries"><button class="menu-card__add" aria-label="Add Loaded Fries">+</button></div>
+        <div class="menu-card__photo"><img loading="lazy" src="assets/img/menu-fries.jpg" alt="Loaded fries"><button class="menu-card__add" aria-label="Add Loaded Fries">+</button></div>
         <div class="menu-card__checker"></div>
         <div class="menu-card__info"><span>Loaded Fries</span><span>$6</span></div>
       </article>
     </div>
   </div>
 </section>
+</div>
 
 <footer>
   <div class="wrap footer-top">
     <div class="footer-nav">
-      <a href="#">Home</a>
-      <a href="#menu">Burgers</a>
+      <a href="#" data-view="home">Home</a>
+      <a href="#menu" data-view="burgers">Burgers</a>
       <a href="#">Spices</a>
       <a href="#">Contact</a>
     </div>
@@ -1250,13 +1268,51 @@
     });
   })();
 
-  // ---- nav wordmark scrolls to top instead of reloading when already on the page ----
+  // ---- view swap: BURGERS is its own hidden "page" (#burgersView) that only shows
+  // when explicitly navigated to, matching CRAV's separate /menu route — everything
+  // else lives in #homeView and is what loads by default ----
+  const homeViewEl = document.getElementById('homeView');
+  const burgersViewEl = document.getElementById('burgersView');
+  let currentView = 'home';
+  let viewSwapping = false;
+
+  function goToView(name) {
+    if (viewSwapping || name === currentView || !homeViewEl || !burgersViewEl) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    viewSwapping = true;
+    const leaving = currentView === 'home' ? homeViewEl : burgersViewEl;
+    const entering = name === 'home' ? homeViewEl : burgersViewEl;
+    leaving.classList.add('view-leaving');
+    setTimeout(() => {
+      leaving.hidden = true;
+      leaving.classList.remove('view-leaving');
+      entering.hidden = false;
+      window.scrollTo(0, 0);
+      entering.classList.add('view-entering');
+      currentView = name;
+      setTimeout(() => {
+        entering.classList.remove('view-entering');
+        viewSwapping = false;
+      }, 650);
+    }, 380);
+  }
+
+  document.querySelectorAll('[data-view]').forEach((el) => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      goToView(el.getAttribute('data-view'));
+    });
+  });
+
+  // ---- nav wordmark: goes home (swapping views if needed) instead of reloading ----
   (function () {
     const wordmark = document.getElementById('navWordmark');
     if (!wordmark) return;
     wordmark.addEventListener('click', (e) => {
       e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      goToView('home');
     });
   })();
 
