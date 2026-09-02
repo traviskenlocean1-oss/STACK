@@ -407,7 +407,7 @@
   .travels p { max-width: 420px; font-size: 1.05rem; }
   .travel-path { position: relative; width: 100%; max-width: 1400px; margin: 50px auto 0; aspect-ratio: 1536 / 1500; }
   .travel-path__line { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .city-card { position: absolute; width: clamp(150px, 16vw, 240px); }
+  .city-card { position: absolute; width: clamp(190px, 20vw, 300px); }
   .city-card-inner { border-radius: 14px; overflow: hidden; box-shadow: 0 18px 30px rgba(0,0,0,0.2); }
   .city-card img { width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; }
   .city-tag {
@@ -421,13 +421,13 @@
   .city-card--london { top: 27%; left: 34%; transform: rotate(-7deg); }
   .city-card--sydney { top: 48%; right: 8%; transform: rotate(10deg); }
   .city-card--tokyo { top: 63%; left: 4%; transform: rotate(-11deg); }
-  .city-card--nyc { top: 84%; left: 22%; transform: rotate(6deg); }
-  .city-card--paris { top: 84%; left: 50%; transform: rotate(-8deg); }
+  .city-card--nyc { top: 78%; left: 42%; transform: rotate(6deg); }
+  .city-card--paris { top: 85%; right: 4%; transform: rotate(-8deg); }
   .travel-plane { position: absolute; width: clamp(70px, 9vw, 150px); filter: drop-shadow(0 6px 10px rgba(0,0,0,0.15)); }
   .travel-plane--1 { top: 15%; left: 60%; transform: rotate(-155deg); }
   .travel-plane--2 { top: 52%; left: 22%; transform: rotate(-165deg); }
-  .travel-plane--3 { top: 80%; left: 40%; width: clamp(60px, 7vw, 120px); transform: rotate(-100deg); }
-  .travel-connector { position: absolute; top: 87%; left: 30%; width: 20%; height: auto; }
+  .travel-plane--3 { top: 74%; left: 33%; width: clamp(60px, 7vw, 120px); transform: rotate(90deg); }
+  .travel-plane--4 { top: 83%; left: 66%; width: clamp(60px, 7vw, 120px); transform: rotate(90deg); }
 
   /* ---------- final CTA ---------- */
   .final-cta {
@@ -501,7 +501,7 @@
     .hero-text { flex-direction: column; gap: 16px; align-items: center; text-align: center; }
     #hero-video-section { height: 280vh; }
     .travel-path { aspect-ratio: auto; height: auto; display: flex; flex-direction: column; align-items: center; gap: 50px; padding-bottom: 20px; }
-    .travel-path__line, .travel-plane, .travel-connector { display: none; }
+    .travel-path__line, .travel-plane { display: none; }
     .city-card { position: static; width: 220px; transform: none !important; }
     .ingredient-thumbs { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
     .ingredient-thumb {
@@ -624,12 +624,12 @@
   </div>
   <div class="travel-path">
     <svg class="travel-path__line" viewBox="0 0 1536 1500" preserveAspectRatio="none">
-      <path d="M1350,50 C950,250 1150,480 800,560 C480,630 650,850 300,980 C100,1060 250,1250 90,1400" fill="none" stroke="#F4A804" stroke-width="4" stroke-dasharray="16 16" stroke-linecap="round"/>
+      <path d="M1350,50 C950,250 1150,480 800,560 C480,630 650,850 300,980 C100,1060 250,1250 90,1400 C300,1480 500,1350 725,1270 C900,1200 1050,1320 1180,1320" fill="none" stroke="#F4A804" stroke-width="4" stroke-dasharray="16 16" stroke-linecap="round"/>
     </svg>
     <svg class="travel-plane travel-plane--1" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
     <svg class="travel-plane travel-plane--2" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
-    <svg class="travel-connector" viewBox="0 0 300 40" preserveAspectRatio="none"><path d="M0,25 C80,5 160,35 300,10" fill="none" stroke="#F4A804" stroke-width="4" stroke-dasharray="14 14" stroke-linecap="round"/></svg>
     <svg class="travel-plane travel-plane--3" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
+    <svg class="travel-plane travel-plane--4" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
     <div class="city-card city-card--berlin"><span class="city-tag">BERLIN"</span><div class="city-card-inner"><img src="assets/img/travel-2.jpg" alt="Customer with a STACK burger in Berlin"></div></div>
     <div class="city-card city-card--london"><span class="city-tag">LONDON"</span><div class="city-card-inner"><img src="assets/img/travel-1.jpg" alt="Customer with a STACK burger in London"></div></div>
     <div class="city-card city-card--sydney"><span class="city-tag">SYDNEY"</span><div class="city-card-inner"><img src="assets/img/customer-1.jpg" alt="Customer with a STACK burger in Sydney"></div></div>
