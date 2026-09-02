@@ -283,17 +283,26 @@
   .wave { display: block; width: 100%; height: auto; aspect-ratio: 1536 / 300; }
   .wave--in { position: absolute; top: 0; left: 0; z-index: auto; margin: 0; transform: scaleY(0.65); transform-origin: top; transition: transform 0.9s cubic-bezier(.22,.9,.3,1); }
   .wave--in.wave-settled { transform: scaleY(1); }
-  /* the wave svg's fill only occupies the upper half of its own aspect-ratio box (the
-     lower half is transparent by design, meant to overlap into whatever follows) — capping
-     the wrap's own height crops away that unused transparent tail instead of letting it
-     show through as a gap of plain page background between this and the next element. */
-  .wave-out-wrap { width: 100%; height: 13vw; margin-top: -9%; position: relative; z-index: 5; overflow: hidden; transform: scaleY(0.65); transform-origin: top; transition: transform 0.9s cubic-bezier(.22,.9,.3,1); }
+  .wave--in.wave--bottom { top: auto; bottom: 0; transform-origin: bottom; }
+  /* a colored wave meant to look like it's fading INTO whatever comes next has to live
+     as an absolutely-positioned overlay INSIDE that next element (like the "in" waves
+     above), not as a standalone box in normal flow before it — its fill only covers the
+     upper half of its own box, so a standalone box's naturally-transparent lower half
+     has nothing behind it but plain page, showing as a gap of the wrong color. Living
+     inside the following element instead means that transparent half reveals THAT
+     element's own content (the photo), which is what actually makes it read as the
+     color fading directly into the photo with no gap. Pulled up slightly (top: -4vw) to
+     overlap the seam with the section above. */
+  .wave--red-into-photo { top: -4vw; z-index: 2; }
+
+  /* the yellow section's own exit wave: a standalone box works fine here (unlike the red
+     one above) because what follows it is the plain cream page — the wave's naturally-
+     transparent lower half revealing cream is already the correct look, no gap bug. */
+  .wave-out-wrap { width: 100%; margin-top: -9%; position: relative; z-index: 5; overflow: hidden; transform: scaleY(0.65); transform-origin: top; transition: transform 0.9s cubic-bezier(.22,.9,.3,1); }
   .wave-out-wrap.wave-settled { transform: scaleY(1); }
 
   .hands-photo-full { width: 100%; height: 105vh; overflow: hidden; position: relative; }
   .hands-photo-full img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .hands-photo-full .wave--in { top: auto; bottom: 0; transform: scaleY(0.65); transform-origin: bottom; }
-  .hands-photo-full .wave--in.wave-settled { transform: scaleY(1); }
 
   /* ---------- ketchup / red section ---------- */
   .ketchup {
@@ -409,14 +418,16 @@
     z-index: 3;
   }
   .city-card--berlin { top: 1%; right: 2%; transform: rotate(7deg); }
-  .city-card--paris { top: 18%; left: 6%; transform: rotate(-9deg); }
   .city-card--london { top: 27%; left: 34%; transform: rotate(-7deg); }
   .city-card--sydney { top: 48%; right: 8%; transform: rotate(10deg); }
   .city-card--tokyo { top: 63%; left: 4%; transform: rotate(-11deg); }
-  .city-card--nyc { top: 84%; left: 32%; transform: rotate(6deg); }
+  .city-card--nyc { top: 84%; left: 22%; transform: rotate(6deg); }
+  .city-card--paris { top: 84%; left: 50%; transform: rotate(-8deg); }
   .travel-plane { position: absolute; width: clamp(70px, 9vw, 150px); filter: drop-shadow(0 6px 10px rgba(0,0,0,0.15)); }
   .travel-plane--1 { top: 15%; left: 60%; transform: rotate(-155deg); }
   .travel-plane--2 { top: 52%; left: 22%; transform: rotate(-165deg); }
+  .travel-plane--3 { top: 80%; left: 40%; width: clamp(60px, 7vw, 120px); transform: rotate(-100deg); }
+  .travel-connector { position: absolute; top: 87%; left: 30%; width: 20%; height: auto; }
 
   /* ---------- final CTA ---------- */
   .final-cta {
@@ -456,7 +467,7 @@
   .footer-wordmark {
     position: relative;
     text-align: center;
-    padding-top: 220px;
+    padding-top: 100px;
     padding-bottom: 20px;
   }
   .footer-wordmark .wordmark {
@@ -479,8 +490,8 @@
     opacity: 1;
   }
   .footer-thumb { position: absolute; width: 90px; }
-  .footer-thumb.f1 { top: 200px; left: 10%; }
-  .footer-thumb.f2 { top: calc(10% + 220px); right: 12%; width: 70px; }
+  .footer-thumb.f1 { top: 80px; left: 10%; }
+  .footer-thumb.f2 { top: calc(10% + 100px); right: 12%; width: 70px; }
 
   @media (max-width: 860px) {
     .wrap, header.site-nav { padding-left: 20px; padding-right: 20px; }
@@ -490,7 +501,7 @@
     .hero-text { flex-direction: column; gap: 16px; align-items: center; text-align: center; }
     #hero-video-section { height: 280vh; }
     .travel-path { aspect-ratio: auto; height: auto; display: flex; flex-direction: column; align-items: center; gap: 50px; padding-bottom: 20px; }
-    .travel-path__line, .travel-plane { display: none; }
+    .travel-path__line, .travel-plane, .travel-connector { display: none; }
     .city-card { position: static; width: 220px; transform: none !important; }
     .ingredient-thumbs { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
     .ingredient-thumb {
@@ -582,13 +593,10 @@
   </div>
 </section>
 
-<div class="wave-out-wrap">
-  <svg class="wave jelly" id="waveOutRed" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,0 H-1 V155 S184.32,45 460.8,175 S860.16,89.327311 1121.28,155.023593 S1413.12,121.445613 1536,88.554387 V0" fill="#F91814"></path></svg>
-</div>
-
 <div class="hands-photo-full">
   <img src="assets/img/hands-burger.jpg" alt="Hands holding a loaded STACK burger">
-  <svg class="wave jelly wave--in" id="waveOutHands" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,300 H-1 V145 S184.32,255 460.8,125 S860.16,210.672689 1121.28,144.976407 S1413.12,178.554387 1536,211.44561300000002 V300" fill="#F8E3CD"></path></svg>
+  <svg class="wave jelly wave--in wave--red-into-photo" id="waveOutRed" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,0 H-1 V155 S184.32,45 460.8,175 S860.16,89.327311 1121.28,155.023593 S1413.12,121.445613 1536,88.554387 V0" fill="#F91814"></path></svg>
+  <svg class="wave jelly wave--in wave--bottom" id="waveOutHands" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,300 H-1 V145 S184.32,255 460.8,125 S860.16,210.672689 1121.28,144.976407 S1413.12,178.554387 1536,211.44561300000002 V300" fill="#F8E3CD"></path></svg>
 </div>
 
 <section class="ingredients">
@@ -620,12 +628,14 @@
     </svg>
     <svg class="travel-plane travel-plane--1" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
     <svg class="travel-plane travel-plane--2" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
+    <svg class="travel-connector" viewBox="0 0 300 40" preserveAspectRatio="none"><path d="M0,25 C80,5 160,35 300,10" fill="none" stroke="#F4A804" stroke-width="4" stroke-dasharray="14 14" stroke-linecap="round"/></svg>
+    <svg class="travel-plane travel-plane--3" viewBox="0 0 100 100"><path d="M50 2 L54 30 L92 55 L92 62 L54 50 L58 78 L72 88 L72 94 L50 88 L28 94 L28 88 L42 78 L46 50 L8 62 L8 55 L46 30 Z" fill="#fff" stroke="#F91814" stroke-width="3"/></svg>
     <div class="city-card city-card--berlin"><span class="city-tag">BERLIN"</span><div class="city-card-inner"><img src="assets/img/travel-2.jpg" alt="Customer with a STACK burger in Berlin"></div></div>
-    <div class="city-card city-card--paris"><span class="city-tag">PARIS"</span><div class="city-card-inner"><img src="assets/img/customer-2.jpg" alt="Customer with a STACK burger in Paris"></div></div>
     <div class="city-card city-card--london"><span class="city-tag">LONDON"</span><div class="city-card-inner"><img src="assets/img/travel-1.jpg" alt="Customer with a STACK burger in London"></div></div>
     <div class="city-card city-card--sydney"><span class="city-tag">SYDNEY"</span><div class="city-card-inner"><img src="assets/img/customer-1.jpg" alt="Customer with a STACK burger in Sydney"></div></div>
     <div class="city-card city-card--tokyo"><span class="city-tag">TOKYO"</span><div class="city-card-inner"><img src="assets/img/travel-3.jpg" alt="Customer with a STACK burger in Tokyo"></div></div>
     <div class="city-card city-card--nyc"><span class="city-tag">NYC"</span><div class="city-card-inner"><img src="assets/img/customer-3.jpg" alt="Customer with a STACK burger in New York"></div></div>
+    <div class="city-card city-card--paris"><span class="city-tag">PARIS"</span><div class="city-card-inner"><img src="assets/img/customer-2.jpg" alt="Customer with a STACK burger in Paris"></div></div>
   </div>
 </section>
 
