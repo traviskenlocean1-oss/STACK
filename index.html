@@ -90,20 +90,21 @@
   .loader-wave { position: absolute; left: 0; bottom: -2%; width: 100%; height: 40%; z-index: 0; }
   .loader-stack {
     position: relative; z-index: 2;
-    width: clamp(230px, 27vw, 380px);
-    height: clamp(150px, 18vw, 260px);
+    width: clamp(190px, 20vw, 300px);
+    height: clamp(190px, 20vw, 300px);
+    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.3));
   }
-  .loader-piece {
-    position: absolute; left: 50%; width: 78%; height: auto;
-    opacity: 0; transform: translate(-50%, -60px) scale(0.5);
-    transition: transform 0.6s cubic-bezier(.34,1.56,.64,1), opacity 0.35s ease;
-    filter: drop-shadow(0 10px 14px rgba(0,0,0,0.25));
+  .loader-burger-svg { width: 100%; height: 100%; overflow: visible; }
+  .stack-layer {
+    opacity: 0;
+    transform: translateY(-22px) scale(0.6);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.55s cubic-bezier(.34,1.56,.64,1), opacity 0.3s ease;
   }
-  .loader-stack.piece-in .loader-piece { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  .lp-patty { bottom: 0; z-index: 1; transition-delay: 0.05s; }
-  .lp-top { bottom: 46%; z-index: 2; transition-delay: 0.3s; }
+  .loader-stack.piece-in .stack-layer { opacity: 1; transform: translateY(0) scale(1); }
   .loader-crumb {
-    position: absolute; top: 46%; left: 50%; width: 8px; height: 8px; border-radius: 50%;
+    position: absolute; top: 40%; left: 50%; width: 8px; height: 8px; border-radius: 50%;
     opacity: 0; pointer-events: none;
   }
   .loader-stack.piece-in .loader-crumb {
@@ -722,19 +723,28 @@
 <div id="pageLoader" role="dialog" aria-modal="true" aria-label="Page loading">
   <svg class="loader-wave jelly" id="loaderWave" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,300 H-1 V145 S184.32,255 460.8,125 S860.16,210.672689 1121.28,144.976407 S1413.12,178.554387 1536,211.44561300000002 V300" fill="#F6C445"></path></svg>
   <div class="loader-stack" id="loaderStack">
-    <svg class="loader-piece lp-patty" viewBox="0 0 300 150" aria-hidden="true">
-      <rect x="15" y="65" width="270" height="70" rx="35" fill="#4A2413"></rect>
-      <rect x="15" y="55" width="270" height="60" rx="30" fill="#6B3A24"></rect>
-      <path d="M8,28 Q40,54 72,30 Q104,58 144,29 Q184,58 224,30 Q256,54 292,28 L292,58 L8,58 Z" fill="#F6C445"></path>
-      <path d="M8,28 Q40,54 72,30 Q104,58 144,29 Q184,58 224,30 Q256,54 292,28" fill="none" stroke="#E3A80F" stroke-width="3" stroke-linecap="round"></path>
-    </svg>
-    <svg class="loader-piece lp-top" viewBox="0 0 300 170" aria-hidden="true">
-      <path d="M22,150 Q22,42 150,42 Q278,42 278,150 Z" fill="#D89B4A"></path>
-      <path d="M18,140 Q18,36 150,36 Q282,36 282,140 Z" fill="#F0C877"></path>
-      <ellipse cx="105" cy="72" rx="46" ry="17" fill="#FCE3AC" opacity="0.7" transform="rotate(-13 105 72)"></ellipse>
-      <ellipse cx="118" cy="62" rx="5" ry="8" fill="#fff" opacity="0.85" transform="rotate(-10 118 62)"></ellipse>
-      <ellipse cx="165" cy="58" rx="5" ry="8" fill="#fff" opacity="0.85" transform="rotate(8 165 58)"></ellipse>
-      <ellipse cx="190" cy="72" rx="5" ry="8" fill="#fff" opacity="0.85" transform="rotate(-5 190 72)"></ellipse>
+    <svg class="loader-burger-svg" viewBox="0 0 300 300" aria-hidden="true" stroke="#3D1408" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+      <g class="stack-layer" style="transition-delay:0.05s">
+        <path d="M55,250 Q55,280 150,280 Q245,280 245,250 L245,225 Q245,213 233,213 L67,213 Q55,213 55,225 Z" fill="#E8A23C"></path>
+      </g>
+      <g class="stack-layer" style="transition-delay:0.15s">
+        <rect x="40" y="180" width="220" height="42" rx="18" fill="#6B3A24"></rect>
+      </g>
+      <g class="stack-layer" style="transition-delay:0.25s">
+        <path d="M35,150 L265,150 L265,163 Q250,183 235,163 Q220,184 205,163 Q190,186 175,163 Q160,183 145,163 Q130,186 115,163 Q100,183 85,163 Q70,186 55,163 Q45,178 35,163 Z" fill="#F6C445"></path>
+      </g>
+      <g class="stack-layer" style="transition-delay:0.34s">
+        <rect x="45" y="128" width="210" height="30" rx="10" fill="#E8462F"></rect>
+      </g>
+      <g class="stack-layer" style="transition-delay:0.43s">
+        <path d="M20,112 L38,88 L56,112 L74,85 L92,112 L110,90 L128,112 L146,86 L164,112 L182,91 L200,112 L218,87 L236,112 L254,90 L280,112 L280,135 L20,135 Z" fill="#7CB518"></path>
+      </g>
+      <g class="stack-layer" style="transition-delay:0.52s">
+        <path d="M50,100 Q35,18 150,14 Q265,18 250,100 Q225,80 200,100 Q175,78 150,100 Q125,78 100,100 Q75,80 50,100 Z" fill="#F0C877"></path>
+        <ellipse cx="118" cy="45" rx="6" ry="9" fill="#fff" stroke-width="3" transform="rotate(-12 118 45)"></ellipse>
+        <ellipse cx="150" cy="35" rx="6" ry="9" fill="#fff" stroke-width="3"></ellipse>
+        <ellipse cx="182" cy="45" rx="6" ry="9" fill="#fff" stroke-width="3" transform="rotate(12 182 45)"></ellipse>
+      </g>
     </svg>
     <div class="loader-crumb" style="--cx:-46px; --cy:-58px; background:#F6C445;"></div>
     <div class="loader-crumb" style="--cx:38px; --cy:-64px; background:#fff;"></div>
