@@ -90,21 +90,19 @@
   .loader-wave { position: absolute; left: 0; bottom: -2%; width: 100%; height: 40%; z-index: 0; }
   .loader-stack {
     position: relative; z-index: 2;
-    width: clamp(160px, 22vw, 300px);
-    height: clamp(140px, 19vw, 260px);
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    width: clamp(230px, 27vw, 380px);
+    height: clamp(150px, 18vw, 260px);
   }
   .loader-piece {
-    position: absolute; left: 50%;
-    border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
-    opacity: 0; transform: translate(-50%, -60px) scale(0.4);
+    position: absolute; left: 50%; width: 94%; height: auto;
+    opacity: 0; transform: translate(-50%, -60px) scale(0.5);
     transition: transform 0.6s cubic-bezier(.34,1.56,.64,1), opacity 0.35s ease;
+    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.28));
   }
   .loader-stack.piece-in .loader-piece { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  .lp-bottom { bottom: 0; width: 92%; height: 34%; background: #E8A23C; border-radius: 45% 45% 50% 50% / 40% 40% 60% 60%; transition-delay: 0.05s; }
-  .lp-patty { bottom: 22%; width: 96%; height: 30%; background: #6B3A24; border-radius: 48%; transition-delay: 0.22s; }
-  .lp-cheese { bottom: 40%; width: 100%; height: 20%; background: var(--yellow); clip-path: polygon(0% 40%, 100% 0%, 100% 60%, 0% 100%); transition-delay: 0.36s; }
-  .lp-top { bottom: 50%; width: 90%; height: 46%; background: #F0C877; border-radius: 50% 50% 42% 42% / 65% 65% 35% 35%; transition-delay: 0.5s; }
+  .lp-bottom { bottom: 0; z-index: 1; transition-delay: 0.05s; }
+  .lp-patty { bottom: 24%; z-index: 2; transition-delay: 0.24s; }
+  .lp-top { bottom: 42%; z-index: 3; transition-delay: 0.44s; }
   .loader-crumb {
     position: absolute; top: 46%; left: 50%; width: 8px; height: 8px; border-radius: 50%;
     opacity: 0; pointer-events: none;
@@ -298,10 +296,11 @@
     inset: 2%;
     z-index: 2;
   }
-  .hero-video-frame video {
+  .hero-video-frame canvas {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
   }
   .hero-badges { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
   .hero-badges .badge { position: absolute; pointer-events: auto; }
@@ -722,10 +721,9 @@
 <div id="pageLoader" role="dialog" aria-modal="true" aria-label="Page loading">
   <svg class="loader-wave jelly" id="loaderWave" viewBox="0 0 1536 300" preserveAspectRatio="none"><path d="M1536,300 H-1 V145 S184.32,255 460.8,125 S860.16,210.672689 1121.28,144.976407 S1413.12,178.554387 1536,211.44561300000002 V300" fill="#F6C445"></path></svg>
   <div class="loader-stack" id="loaderStack">
-    <div class="loader-piece lp-bottom"></div>
-    <div class="loader-piece lp-patty"></div>
-    <div class="loader-piece lp-cheese"></div>
-    <div class="loader-piece lp-top"></div>
+    <img class="loader-piece lp-bottom" src="assets/img/loader-bottom.png" alt="">
+    <img class="loader-piece lp-patty" src="assets/img/loader-patty.png" alt="">
+    <img class="loader-piece lp-top" src="assets/img/loader-top.png" alt="">
     <div class="loader-crumb" style="--cx:-46px; --cy:-58px; background:#F6C445;"></div>
     <div class="loader-crumb" style="--cx:38px; --cy:-64px; background:#fff;"></div>
     <div class="loader-crumb" style="--cx:-64px; --cy:-18px; background:#60A905;"></div>
@@ -765,7 +763,7 @@
     <div class="hero-mid-text">Stacking&hellip;</div>
 
     <div class="hero-video-frame">
-      <video id="heroVideo" muted playsinline preload="auto"></video>
+      <canvas id="heroCanvas" width="1280" height="720"></canvas>
     </div>
 
     <div class="hero-badges">
@@ -970,9 +968,19 @@
   let loaderProgress = 0;
   let loaderDismissed = false;
 
+  let loaderBarDirty = false;
   function setLoaderProgress(p) {
     loaderProgress = Math.max(loaderProgress, Math.min(1, p));
-    if (loaderBarFill) loaderBarFill.style.width = (loaderProgress * 100).toFixed(1) + '%';
+    // frames finish loading in bursts (several `fetch`es resolve on the same tick),
+    // so writing to style.width every single time forces repeated layout during the
+    // busiest moment of the page's life — coalesce to one DOM write per animation
+    // frame instead, which is all a progress bar ever needs to look continuous.
+    if (loaderBarDirty || !loaderBarFill) return;
+    loaderBarDirty = true;
+    requestAnimationFrame(() => {
+      loaderBarFill.style.width = (loaderProgress * 100).toFixed(1) + '%';
+      loaderBarDirty = false;
+    });
   }
 
   function dismissLoader() {
@@ -1041,37 +1049,54 @@
     requestAnimationFrame(animate);
   })();
 
-  // ---- scroll-scrubbed hero video ----
+  // ---- scroll-scrubbed hero burger: pre-decoded frame sequence on a canvas ----
+  // A real timing test on this exact <video>-seek mechanic showed ~150ms per
+  // seek (measured via the 'seeked' event, not assumed) — VP9-alpha decode is
+  // just too slow to seek at scroll speed, capping it at ~6-7fps regardless of
+  // any JS tweaking. A canvas draw of an already-decoded bitmap costs under a
+  // millisecond, which is what actually fixes the choppiness: no per-frame
+  // decode in the scroll path at all, just a blit of a bitmap that was decoded
+  // once up front. The 226 frames were extracted from the validated transparent
+  // WebM via an in-browser canvas capture (ffmpeg re-corrupts this asset's alpha
+  // to fully-opaque on any decode, confirmed again this session — never route
+  // this asset through ffmpeg, extraction included).
   (function () {
     const section = document.getElementById('hero-video-section');
-    const video = document.getElementById('heroVideo');
-    const SOURCE_FPS = 24;
-    const FRAME_TIME = 1 / SOURCE_FPS;
+    const canvas = document.getElementById('heroCanvas');
+    const ctx = canvas.getContext('2d');
+    const TOTAL_FRAMES = 226;
+    const frames = new Array(TOTAL_FRAMES);
     let ready = false;
-    let targetTime = 0;
-    let lastFrameIndex = -1;
+    let targetFrame = 0;
+    let lastDrawn = -1;
 
-    async function loadVideo(src) {
+    function drawFrame(i) {
+      const bmp = frames[i];
+      if (!bmp) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      lastDrawn = i;
+    }
+
+    async function loadFrames() {
       try {
-        const res = await fetch(src);
-        const total = parseInt(res.headers.get('content-length') || '0', 10);
-        let received = 0;
-        const chunks = [];
-        const reader = res.body.getReader();
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          chunks.push(value);
-          received += value.length;
-          if (total) setLoaderProgress(received / total);
+        let loaded = 0;
+        let nextIndex = 0;
+        async function worker() {
+          while (nextIndex < TOTAL_FRAMES) {
+            const i = nextIndex++;
+            const name = String(i).padStart(3, '0');
+            const res = await fetch(`assets/video/frames/frame-${name}.webp`);
+            const blob = await res.blob();
+            frames[i] = await createImageBitmap(blob);
+            loaded++;
+            setLoaderProgress(loaded / TOTAL_FRAMES);
+            if (i === 0) drawFrame(0);
+          }
         }
-        const blob = new Blob(chunks);
-        video.src = URL.createObjectURL(blob);
-        await new Promise((resolve) => {
-          video.addEventListener('loadedmetadata', resolve, { once: true });
-        });
-        video.pause();
-        video.currentTime = 0;
+        // 10 concurrent fetches — fast enough to load ~226 small frames quickly
+        // without opening so many connections it starves the rest of the page
+        await Promise.all(Array.from({ length: 10 }, worker));
         ready = true;
         requestAnimationFrame(tick);
         finishLoaderWhenReady();
@@ -1089,30 +1114,19 @@
     }
 
     function onScroll() {
-      if (!ready || !video.duration) return;
-      targetTime = getProgress() * video.duration;
+      if (!ready) return;
+      targetFrame = Math.round(getProgress() * (TOTAL_FRAMES - 1));
     }
 
-    // The video is a genuine all-keyframe encode (every one of its 226 frames is
-    // its own keyframe, verified — seeks land in 0-2ms), so there's no need for
-    // the eased "catch up to target" smoothing an earlier version used to hide
-    // slow seeking: that damping is what made scrubbing feel laggy/springy.
-    // Now it tracks scroll position directly, snapped to the nearest real
-    // source frame so it never asks the decoder for a frame that doesn't exist.
     function tick() {
-      if (ready && video.duration && !video.seeking) {
-        const clamped = Math.min(video.duration, Math.max(0, targetTime));
-        const frameIndex = Math.round(clamped / FRAME_TIME);
-        if (frameIndex !== lastFrameIndex) {
-          video.currentTime = frameIndex * FRAME_TIME;
-          lastFrameIndex = frameIndex;
-        }
+      if (ready && targetFrame !== lastDrawn) {
+        drawFrame(targetFrame);
       }
       requestAnimationFrame(tick);
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    loadVideo('assets/video/smash-burger-transparent.webm');
+    loadFrames();
   })();
 
   // ---- badges fade/scale in on scroll ----
