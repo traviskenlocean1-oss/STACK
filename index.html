@@ -1099,28 +1099,6 @@
       lastDrawn = i;
     }
 
-    // A profiler trace on the live site (Chrome's real "Decode Image" GPU
-    // events, not a JS-side proxy) showed this is where the scroll lag
-    // actually lives: createImageBitmap() decodes the WebP bytes, but the
-    // canvas still has to upload each bitmap to a fresh GPU texture the
-    // FIRST time it's ever drawn — and scrolling cycles through 226 distinct
-    // images, so nearly every frame change during scroll was a cold upload.
-    // Fix: do that first-draw for every frame once here, while the loader
-    // still has the page blocked, so the one-time GPU cost lands somewhere
-    // invisible instead of during the user's actual scroll.
-    function primeAllFrameTextures() {
-      return new Promise((resolve) => {
-        let i = 0;
-        function step() {
-          const end = Math.min(i + 4, TOTAL_FRAMES);
-          for (; i < end; i++) drawFrame(i);
-          if (i < TOTAL_FRAMES) requestAnimationFrame(step);
-          else { drawFrame(0); resolve(); }
-        }
-        requestAnimationFrame(step);
-      });
-    }
-
     async function loadFrames() {
       try {
         let loaded = 0;
@@ -1133,15 +1111,13 @@
             const blob = await res.blob();
             frames[i] = await createImageBitmap(blob);
             loaded++;
-            setLoaderProgress(loaded * 0.7 / TOTAL_FRAMES);
+            setLoaderProgress(loaded / TOTAL_FRAMES);
             if (i === 0) drawFrame(0);
           }
         }
         // 10 concurrent fetches — fast enough to load ~226 small frames quickly
         // without opening so many connections it starves the rest of the page
         await Promise.all(Array.from({ length: 10 }, worker));
-        await primeAllFrameTextures();
-        setLoaderProgress(1);
         ready = true;
         requestAnimationFrame(tick);
         finishLoaderWhenReady();
@@ -1165,9 +1141,26 @@
       targetFrame = Math.round(getProgress() * (TOTAL_FRAMES - 1));
     }
 
-    function tick() {
-      if (ready && targetFrame !== lastDrawn) {
+    // A real GPU trace (Chrome's "Decode Image" events, not a JS-side proxy)
+    // showed each drawImage() of a distinct ImageBitmap costs ~30-40ms on
+    // this asset, EVERY time it's drawn — Canvas2D doesn't keep a persistent
+    // GPU texture across separate draw calls the way WebGL would, so a frame
+    // already drawn once is exactly as expensive to draw again as a fresh
+    // one. Priming every frame during the loader was tried and made no
+    // difference (confirmed by re-tracing after), which is what proved this.
+    // Since the per-draw cost itself can't be avoided without a much bigger
+    // WebGL rewrite, the actual lever is *frequency* — during a fast scroll
+    // burst the target frame can change on every rAF tick (up to 60/sec),
+    // which is far more draws per second than ~30-40ms/draw can keep up
+    // with. Capping how often a NEW frame is actually drawn gives each
+    // decode room to finish before the next is requested; the final resting
+    // frame is never skipped, only the in-between ones during fast scrolling.
+    const MIN_DRAW_INTERVAL_MS = 45;
+    let lastDrawTime = 0;
+    function tick(now) {
+      if (ready && targetFrame !== lastDrawn && now - lastDrawTime >= MIN_DRAW_INTERVAL_MS) {
         drawFrame(targetFrame);
+        lastDrawTime = now;
       }
       requestAnimationFrame(tick);
     }
