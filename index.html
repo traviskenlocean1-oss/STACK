@@ -1099,6 +1099,28 @@
       lastDrawn = i;
     }
 
+    // A profiler trace on the live site (Chrome's real "Decode Image" GPU
+    // events, not a JS-side proxy) showed this is where the scroll lag
+    // actually lives: createImageBitmap() decodes the WebP bytes, but the
+    // canvas still has to upload each bitmap to a fresh GPU texture the
+    // FIRST time it's ever drawn — and scrolling cycles through 226 distinct
+    // images, so nearly every frame change during scroll was a cold upload.
+    // Fix: do that first-draw for every frame once here, while the loader
+    // still has the page blocked, so the one-time GPU cost lands somewhere
+    // invisible instead of during the user's actual scroll.
+    function primeAllFrameTextures() {
+      return new Promise((resolve) => {
+        let i = 0;
+        function step() {
+          const end = Math.min(i + 4, TOTAL_FRAMES);
+          for (; i < end; i++) drawFrame(i);
+          if (i < TOTAL_FRAMES) requestAnimationFrame(step);
+          else { drawFrame(0); resolve(); }
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
     async function loadFrames() {
       try {
         let loaded = 0;
@@ -1111,17 +1133,21 @@
             const blob = await res.blob();
             frames[i] = await createImageBitmap(blob);
             loaded++;
-            setLoaderProgress(loaded / TOTAL_FRAMES);
+            setLoaderProgress(loaded * 0.7 / TOTAL_FRAMES);
             if (i === 0) drawFrame(0);
           }
         }
         // 10 concurrent fetches — fast enough to load ~226 small frames quickly
         // without opening so many connections it starves the rest of the page
         await Promise.all(Array.from({ length: 10 }, worker));
+        await primeAllFrameTextures();
+        setLoaderProgress(1);
         ready = true;
         requestAnimationFrame(tick);
         finishLoaderWhenReady();
       } catch (e) {
+        ready = true;
+        requestAnimationFrame(tick);
         finishLoaderWhenReady();
       }
     }
