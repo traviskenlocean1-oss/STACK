@@ -51,7 +51,10 @@
     paint-order: stroke fill;
     line-height: 1;
     letter-spacing: 0.01em;
+    text-decoration: none;
+    display: inline-block;
   }
+  a.wordmark:hover { color: var(--red); }
 
   /* ---------- torn-paper badge ---------- */
   .badge {
@@ -83,6 +86,39 @@
   }
   .site-nav .wordmark { font-size: 2.4rem; }
   .site-nav .actions { display: flex; gap: 12px; align-items: center; }
+
+  /* ---------- menu overlay ---------- */
+  .menu-overlay {
+    position: fixed; inset: 0; z-index: 40;
+    background: rgba(249,24,20,0.3);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .menu-overlay.is-open { opacity: 1; pointer-events: auto; }
+  .menu-panel {
+    position: absolute; top: calc(100% + 12px); right: 0;
+    width: 280px; z-index: 55;
+    background: var(--red); border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    display: flex; flex-direction: column; gap: 16px;
+    opacity: 0; transform: translateY(-16px) scale(0.96);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(.2,.8,.2,1);
+  }
+  .menu-panel.is-open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+  .menu-panel a {
+    font-family: "Mouse Memoirs", sans-serif;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    color: var(--cream);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .menu-panel a:hover { color: var(--yellow); }
+  .menu-panel__divider { height: 1px; background: rgba(248,227,204,0.25); margin: 4px 0; }
+  .menu-panel__tag { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; color: rgba(248,227,204,0.7); }
   .pill {
     font-family: "Mouse Memoirs", sans-serif;
     font-size: 1rem;
@@ -200,6 +236,12 @@
      its transparent upper half needs to overlap the red ketchup section above so red shows through
      up to the curve line, otherwise the whole box reads as flat cream-on-cream. */
   #waveBottom { margin-top: -12%; }
+  /* waveTop/waveYellow are the mirror case: fill sits in the UPPER half, transparent LOWER half.
+     With no overlap, that transparent zone sits in front of nothing (the next section hasn't
+     started yet in flow) and shows the plain page background through it — a dead cream gap
+     between the visible curve and where the next section's own red/yellow actually begins.
+     Pulling the next section up via negative margin-bottom closes that gap. */
+  #waveTop, #waveYellow { margin-bottom: -9.5%; }
 
   .hands-photo-full { width: 100%; height: 90vh; overflow: hidden; }
   .hands-photo-full img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -208,7 +250,7 @@
   .ketchup {
     background: var(--red);
     color: var(--cream);
-    padding: 20px 40px 100px;
+    padding: 170px 40px 100px;
     text-align: center;
     position: relative;
     clip-path: inset(0 0 100% 0);
@@ -361,10 +403,22 @@
   .footer-tagline { padding: 20px 0; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.05em; }
   .footer-wordmark {
     position: relative;
-    font-size: clamp(5rem, 22vw, 15rem);
     text-align: center;
     padding-bottom: 20px;
+  }
+  .footer-wordmark .wordmark {
+    font-size: clamp(4rem, 18vw, 13rem);
     -webkit-text-stroke: 0.05em #fff;
+    width: max-content;
+    margin: 0 auto;
+    transform: scaleX(var(--fit-x, 1)) scale(0.3);
+    opacity: 0;
+    transform-origin: center;
+    transition: transform 0.6s cubic-bezier(.34,1.56,.64,1), opacity 0.5s ease;
+  }
+  .footer-wordmark .wordmark.pop-in {
+    transform: scaleX(var(--fit-x, 1)) scale(1);
+    opacity: 1;
   }
   .footer-thumb { position: absolute; width: 90px; }
   .footer-thumb.f1 { top: -20px; left: 10%; }
@@ -392,12 +446,22 @@
 <body>
 
 <header class="site-nav">
-  <div class="wordmark">STACK</div>
-  <div class="actions">
+  <a href="/" class="wordmark" id="navWordmark">STACK</a>
+  <div class="actions" style="position:relative;">
     <a href="#menu" class="pill pill--red">BURGERS</a>
-    <button class="pill pill--outline">MENU ☰</button>
+    <button class="pill pill--outline" id="menuBtn">MENU ☰</button>
+    <div class="menu-panel" id="menuPanel">
+      <a href="#">Home</a>
+      <a href="#menu">Burgers</a>
+      <a href="#">Spices</a>
+      <a href="#">Locations</a>
+      <a href="#">Contact</a>
+      <div class="menu-panel__divider"></div>
+      <div class="menu-panel__tag">Est. 2026 &mdash; Loaded Different</div>
+    </div>
   </div>
 </header>
+<div class="menu-overlay" id="menuOverlay"></div>
 
 <section id="hero-video-section">
   <div class="hero-sticky">
@@ -699,6 +763,63 @@
         card.style.setProperty('--tilt-y', '0px');
       });
     });
+  })();
+
+  // ---- nav wordmark scrolls to top instead of reloading when already on the page ----
+  (function () {
+    const wordmark = document.getElementById('navWordmark');
+    if (!wordmark) return;
+    wordmark.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+
+  // ---- menu button: blur-overlay + slide-in panel, matching CRAV's mechanic ----
+  (function () {
+    const btn = document.getElementById('menuBtn');
+    const panel = document.getElementById('menuPanel');
+    const overlay = document.getElementById('menuOverlay');
+    if (!btn || !panel || !overlay) return;
+    let open = false;
+    function setOpen(next) {
+      open = next;
+      panel.classList.toggle('is-open', open);
+      overlay.classList.toggle('is-open', open);
+      btn.textContent = open ? 'CLOSE ✕' : 'MENU ☰';
+    }
+    btn.addEventListener('click', () => setOpen(!open));
+    overlay.addEventListener('click', () => setOpen(false));
+    panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+  })();
+
+  // ---- footer wordmark: stretch to fill the container width (any letter count), then bubble-pop in on scroll ----
+  (function () {
+    const wordmark = document.querySelector('.footer-wordmark .wordmark');
+    const container = document.querySelector('.footer-wordmark');
+    if (!wordmark || !container) return;
+
+    function fitWidth() {
+      // scrollWidth is the element's untransformed layout width, so this stays correct
+      // regardless of whatever scaleX was applied on a previous call.
+      const containerWidth = container.getBoundingClientRect().width;
+      const scale = containerWidth / wordmark.scrollWidth;
+      wordmark.style.setProperty('--fit-x', scale.toFixed(4));
+    }
+    fitWidth();
+    window.addEventListener('resize', fitWidth);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWidth);
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          wordmark.classList.add('pop-in');
+          io.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+    io.observe(wordmark);
   })();
 </script>
 
